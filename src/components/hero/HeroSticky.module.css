@@ -1,0 +1,104 @@
+﻿/* HeroSticky — design.md §4.3 */
+
+.hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.bgWrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.bgImage {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+  will-change: opacity;
+}
+
+.bgImage.active {
+  opacity: 1;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(22, 38, 74, 0.72) 0%,
+    rgba(46, 26, 71, 0.55) 50%,
+    rgba(22, 38, 74, 0.4) 100%
+  );
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+.eyebrow {
+  color: var(--gold-light);
+  margin-bottom: 24px;
+  display: inline-flex;
+}
+
+.eyebrow::before {
+  background: var(--gold-light);
+}
+
+.title {
+  color: white;
+  margin-bottom: 24px;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 40px;
+  max-width: 480px;
+}
+
+.ctas {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  .hero {
+    min-height: 80vh;
+  }
+
+  .content {
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .ctas {
+    flex-direction: column;
+  }
+
+  .ctas .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bgImage {
+    transition: none;
+  }
+}

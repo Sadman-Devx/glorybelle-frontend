@@ -1,0 +1,10 @@
+.heading { font-family: var(--font-display); font-size: var(--text-h2); font-weight: 500; margin-bottom: 28px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 32px; border-bottom: 1px solid var(--line); }
+.tab { padding: 12px 24px; font-family: var(--font-body); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(46,26,71,0.5); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all var(--duration-card) ease; }
+.tab:hover { color: var(--ink); }
+.tabActive { color: var(--ink); border-bottom-color: var(--gold); }
+.panel { min-height: 300px; }
+.emptyState { text-align: center; padding: 60px 20px; color: rgba(46,26,71,0.5); }
+.emptyState svg { margin: 0 auto 16px; color: var(--gold-deep); }
+.emptyState h3 { font-family: var(--font-display); font-size: 20px; font-weight: 500; color: var(--ink); margin-bottom: 8px; }
+.emptyState p { font-size: 14px; margin-bottom: 20px; }

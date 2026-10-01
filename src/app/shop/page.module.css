@@ -1,0 +1,77 @@
+/* Shop page */
+
+.shopHeader {
+  margin-bottom: 32px;
+}
+
+.count {
+  font-size: 13px;
+  color: rgba(46, 26, 71, 0.5);
+  margin-top: 4px;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--ivory-2);
+  border: 1px solid var(--line);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all var(--duration-card) ease;
+}
+
+.chip:hover {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+
+.layout {
+  display: flex;
+  gap: 40px;
+}
+
+.gridWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gap);
+}
+
+.skeletonCard {
+  aspect-ratio: 1 / 1.25;
+  border-radius: var(--radius-card);
+  background: linear-gradient(110deg, var(--ivory-2) 30%, var(--ivory) 50%, var(--ivory-2) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 1023px) {
+  .skeletonGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 575px) {
+  .skeletonGrid { grid-template-columns: 1fr; }
+}

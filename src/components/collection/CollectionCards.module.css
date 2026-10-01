@@ -1,0 +1,77 @@
+﻿/* CollectionCards — design.md §4.6 (.eg-arch-col) */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.card {
+  position: relative;
+  height: 460px;
+  border-radius: var(--radius-collection);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow-collection);
+}
+
+.bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform var(--duration-collection) ease;
+}
+
+.card:hover .bg {
+  transform: scale(1.07);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(22, 38, 74, 0.75) 0%,
+    rgba(22, 38, 74, 0.1) 60%,
+    transparent 100%
+  );
+}
+
+.content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px;
+  z-index: 1;
+}
+
+.label {
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 500;
+  color: white;
+}
+
+@media (max-width: 1023px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .card { height: 360px; }
+  .card:last-child { grid-column: span 2; height: 300px; }
+}
+
+@media (max-width: 767px) {
+  .grid { grid-template-columns: 1fr; }
+  .card { height: 320px; }
+  .card:last-child { grid-column: span 1; }
+}

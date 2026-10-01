@@ -1,0 +1,189 @@
+/* Product Detail */
+
+.detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: flex-start;
+}
+
+.gallery {
+  position: sticky;
+  top: 130px;
+}
+
+.mainImage {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--ivory-2);
+}
+
+.thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  transition: border-color var(--duration-card) ease;
+}
+
+.thumbActive {
+  border-color: var(--gold);
+}
+
+.info {
+  padding-top: 8px;
+}
+
+.productName {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 500;
+  line-height: 1.1;
+  margin: 12px 0 16px;
+}
+
+.price {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+.description {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: rgba(46, 26, 71, 0.7);
+  margin-bottom: 28px;
+}
+
+.variants {
+  margin-bottom: 8px;
+}
+
+.variantTitle {
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.variantGrid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.variantBtn {
+  padding: 10px 18px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--duration-card) ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.variantBtn:hover {
+  border-color: var(--ink);
+}
+
+.variantActive {
+  border-color: var(--emerald-deep);
+  background: var(--ivory-2);
+  font-weight: 600;
+}
+
+.variantBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.variantSize {
+  font-size: 11px;
+  color: var(--gold-deep);
+}
+
+.trust {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(46, 26, 71, 0.65);
+}
+
+.trustItem svg {
+  color: var(--gold-deep);
+  flex-shrink: 0;
+}
+
+/* Skeleton */
+.skeleton {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+}
+
+.skeletonImage {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-card);
+  background: linear-gradient(110deg, var(--ivory-2) 30%, var(--ivory) 50%, var(--ivory-2) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+.skeletonInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.skeletonLine {
+  border-radius: 6px;
+  background: linear-gradient(110deg, var(--ivory-2) 30%, var(--ivory) 50%, var(--ivory-2) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 767px) {
+  .detail {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .gallery {
+    position: static;
+  }
+}

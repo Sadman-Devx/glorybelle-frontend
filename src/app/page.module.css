@@ -1,0 +1,78 @@
+﻿/* Homepage sections */
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.sectionHeader .eyebrow {
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.collections {
+  background: var(--ivory);
+}
+
+.bestsellers {
+  background: var(--ivory-2);
+}
+
+/* Craft section — dark background */
+.craft {
+  background: var(--emerald-deep);
+  color: white;
+}
+
+.craftInner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--grid-gap-lg);
+  align-items: center;
+}
+
+.craftText {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.craftDesc {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.craftImage {
+  border-radius: var(--radius-testimonial);
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+}
+
+.craftImagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--gold-deep);
+  font-size: 13px;
+}
+
+.ctaSection {
+  background: var(--ivory);
+}
+
+@media (max-width: 767px) {
+  .craftInner {
+    grid-template-columns: 1fr;
+  }
+
+  .craftImage {
+    aspect-ratio: 16 / 9;
+  }
+}

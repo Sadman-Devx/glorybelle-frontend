@@ -1,0 +1,27 @@
+﻿/* RevealOnScroll — design.md §4.3 */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--duration-reveal) var(--ease-luxury),
+    transform var(--duration-reveal) var(--ease-luxury);
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delays: 80ms / 160ms / 240ms */
+.d1 { transition-delay: 80ms; }
+.d2 { transition-delay: 160ms; }
+.d3 { transition-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

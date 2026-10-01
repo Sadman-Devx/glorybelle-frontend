@@ -1,0 +1,133 @@
+﻿/* Footer — design.md §4.5 */
+
+.footer {
+  background-color: var(--ink);
+  color: rgba(255, 255, 255, 0.75);
+  padding-top: 80px;
+}
+
+.footerInner {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+  gap: var(--grid-gap-lg);
+  padding-bottom: 60px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--gold-light);
+  margin-bottom: 4px;
+}
+
+.brandDesc {
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+.colTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 8px;
+}
+
+.footerLink {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.65);
+  transition: color var(--duration-card) ease;
+  padding: 3px 0;
+}
+
+.footerLink:hover {
+  color: var(--gold-light);
+}
+
+.nlDesc {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.nlForm {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.nlInput {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--duration-card) ease;
+}
+
+.nlInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.nlInput:focus {
+  border-color: var(--gold);
+}
+
+.nlBtn {
+  padding: 10px 20px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.nlSuccess {
+  font-size: 12px;
+  color: var(--gold-light);
+}
+
+.nlError {
+  font-size: 12px;
+  color: #e87c7c;
+}
+
+.bottomBar {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 0;
+}
+
+.copyright {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  .footerInner {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .footerInner {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .footer {
+    padding-top: 56px;
+  }
+}

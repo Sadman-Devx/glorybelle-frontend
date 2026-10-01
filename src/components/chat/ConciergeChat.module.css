@@ -1,0 +1,134 @@
+/* ConciergeChat — design.md: pill-shaped, 30px radius, emerald-deep */
+
+.trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: var(--z-chat);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 30px;
+  background: var(--emerald-deep);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-widget);
+  transition: all var(--duration-card) ease;
+}
+
+.trigger:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-deep);
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.window {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: var(--z-chat);
+  width: 360px;
+  max-height: 480px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--shadow-deep);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: chatIn 0.3s var(--ease-luxury);
+}
+
+@keyframes chatIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.windowHeader {
+  padding: 18px 20px;
+  background: var(--emerald-deep);
+  color: white;
+}
+
+.windowTitle {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.windowStatus {
+  font-size: 11px;
+  color: var(--gold-light);
+}
+
+.windowBody {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  min-height: 200px;
+}
+
+.message {
+  background: var(--ivory-2);
+  border-radius: 12px 12px 12px 4px;
+  padding: 12px 16px;
+  max-width: 85%;
+}
+
+.message p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.windowInput {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  background: var(--ivory);
+}
+
+.input:focus { border-color: var(--emerald); }
+
+.sendBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--emerald-deep);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: background var(--duration-card) ease;
+}
+
+.sendBtn:hover { background: var(--ink); }
+
+@media (max-width: 575px) {
+  .window { right: 12px; left: 12px; width: auto; bottom: 72px; }
+  .trigger { right: 16px; bottom: 16px; }
+  .label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window { animation: none; }
+}

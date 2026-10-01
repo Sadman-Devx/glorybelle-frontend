@@ -1,0 +1,129 @@
+/* QuickViewModal — design.md §4.6 */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal {
+  position: relative;
+  max-width: 880px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--ivory);
+  border-radius: var(--radius-modal);
+  animation: scaleIn var(--duration-modal) var(--ease-luxury);
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading {
+  padding: 80px;
+  text-align: center;
+  color: rgba(46, 26, 71, 0.5);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.imageWrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+}
+
+.info {
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.desc {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: rgba(46, 26, 71, 0.65);
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.variants {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.variantBtn {
+  padding: 8px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  background: white;
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--duration-card) ease;
+}
+
+.variantBtn:hover { border-color: var(--ink); }
+.active { border-color: var(--emerald-deep); background: var(--ivory-2); font-weight: 600; }
+
+.viewFull {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--emerald);
+  margin-top: 8px;
+  transition: color var(--duration-card) ease;
+}
+
+.viewFull:hover { color: var(--emerald-deep); }
+
+@media (max-width: 700px) {
+  .grid { grid-template-columns: 1fr; }
+  .imageWrap { aspect-ratio: 4 / 3; }
+  .info { padding: 24px; }
+}
