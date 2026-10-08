@@ -1,25 +1,22 @@
-﻿import styles from './HeroStats.module.css';
+import styles from './HeroStats.module.css';
 
 const STATS = [
-  { value: '406', label: 'Punti Vendita' },
-  { value: '35+', label: 'Anni di Esperienza' },
-  { value: '12.000+', label: 'Clienti Soddisfatti' },
+  { number: '406', label: 'Punti Vendita' },
+  { number: '35+', label: 'Anni di Esperienza' },
+  { number: '12.000+', label: 'Clienti Soddisfatti' },
 ];
 
-/**
- * HeroStats — design.md §4.3
- * Static trust numbers (no count-up animation per design decision)
- */
 export default function HeroStats() {
   return (
-    <div className={styles.stats}>
-      {STATS.map((stat, i) => (
-        <div key={stat.label} className={styles.statItem}>
-          {i > 0 && <div className={styles.divider} />}
-          <span className={styles.value}>{stat.value}</span>
-          <span className={styles.label}>{stat.label}</span>
-        </div>
-      ))}
-    </div>
+    <section className={styles.stats}>
+      <div className={`container ${styles.grid}`}>
+        {STATS.map((stat) => (
+          <div key={stat.label} className={styles.stat}>
+            <div className={styles.number}>{stat.number}</div>
+            <div className={styles.label}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

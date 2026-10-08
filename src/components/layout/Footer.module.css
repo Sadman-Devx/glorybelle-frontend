@@ -1,74 +1,67 @@
-﻿/* Footer — design.md §4.5 */
-
 .footer {
-  background-color: var(--ink);
-  color: rgba(255, 255, 255, 0.75);
-  padding-top: 80px;
+  background: var(--ink);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 80px 0 0;
 }
 
 .footerInner {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
-  gap: var(--grid-gap-lg);
-  padding-bottom: 60px;
+  gap: 48px;
 }
 
-.col {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.col {}
 
 .brand {
   font-family: var(--font-display);
   font-size: 20px;
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: var(--gold-light);
-  margin-bottom: 4px;
+  color: white;
+  display: block;
+  margin-bottom: 14px;
 }
 
 .brandDesc {
   font-size: 13px;
   line-height: 1.7;
-  max-width: 280px;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .colTitle {
-  font-family: var(--font-body);
   font-size: var(--text-micro);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--gold-light);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
 .footerLink {
-  font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.65);
+  display: block;
+  font-size: 13px;
+  padding: 5px 0;
+  color: rgba(255, 255, 255, 0.6);
   transition: color var(--duration-card) ease;
-  padding: 3px 0;
 }
 
-.footerLink:hover {
-  color: var(--gold-light);
-}
+.footerLink:hover { color: white; }
 
+/* Newsletter */
 .nlDesc {
   font-size: 13px;
-  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 14px;
 }
 
 .nlForm {
   display: flex;
   gap: 8px;
-  margin-top: 4px;
 }
 
 .nlInput {
   flex: 1;
-  padding: 10px 16px;
+  padding: 10px 14px;
   border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.08);
@@ -76,58 +69,36 @@
   font-family: var(--font-body);
   font-size: 13px;
   outline: none;
-  transition: border-color var(--duration-card) ease;
 }
 
-.nlInput::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.nlInput:focus {
-  border-color: var(--gold);
-}
+.nlInput::placeholder { color: rgba(255, 255, 255, 0.35); }
+.nlInput:focus { border-color: var(--gold); }
 
 .nlBtn {
-  padding: 10px 20px;
-  font-size: 11px;
   white-space: nowrap;
 }
 
-.nlSuccess {
-  font-size: 12px;
-  color: var(--gold-light);
-}
+.nlSuccess { font-size: 12px; color: var(--gold-light); margin-top: 8px; }
+.nlError { font-size: 12px; color: #e88; margin-top: 8px; }
 
-.nlError {
-  font-size: 12px;
-  color: #e87c7c;
-}
-
+/* Bottom bar */
 .bottomBar {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 48px;
   padding: 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .copyright {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
   text-align: center;
 }
 
 @media (max-width: 1023px) {
-  .footerInner {
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-  }
+  .footerInner { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 767px) {
-  .footerInner {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
-
-  .footer {
-    padding-top: 56px;
-  }
+@media (max-width: 575px) {
+  .footerInner { grid-template-columns: 1fr; gap: 36px; }
+  .footer { padding: 60px 0 0; }
 }

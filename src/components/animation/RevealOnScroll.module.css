@@ -1,11 +1,8 @@
-﻿/* RevealOnScroll — design.md §4.3 */
-
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity var(--duration-reveal) var(--ease-luxury),
-    transform var(--duration-reveal) var(--ease-luxury);
+  transform: translateY(28px);
+  transition: opacity var(--duration-reveal) var(--ease-luxury),
+              transform var(--duration-reveal) var(--ease-luxury);
 }
 
 .visible {
@@ -13,10 +10,9 @@
   transform: translateY(0);
 }
 
-/* Stagger delays: 80ms / 160ms / 240ms */
-.d1 { transition-delay: 80ms; }
-.d2 { transition-delay: 160ms; }
-.d3 { transition-delay: 240ms; }
+.d1 { transition-delay: 0.1s; }
+.d2 { transition-delay: 0.2s; }
+.d3 { transition-delay: 0.3s; }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal {

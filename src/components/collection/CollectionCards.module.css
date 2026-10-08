@@ -1,9 +1,7 @@
-﻿/* CollectionCards — design.md §4.6 (.eg-arch-col) */
-
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--grid-gap);
 }
 
 .card {
@@ -11,7 +9,14 @@
   height: 460px;
   border-radius: var(--radius-collection);
   overflow: hidden;
-  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  transition: transform var(--duration-collection) var(--ease-luxury),
+              box-shadow var(--duration-collection) var(--ease-luxury);
+}
+
+.card:hover {
+  transform: translateY(-6px);
   box-shadow: var(--shadow-collection);
 }
 
@@ -20,37 +25,35 @@
   inset: 0;
   background-size: cover;
   background-position: center;
-  transition: transform var(--duration-collection) ease;
+  transition: transform var(--duration-collection) var(--ease-luxury);
 }
 
 .card:hover .bg {
-  transform: scale(1.07);
+  transform: scale(1.05);
 }
 
 .overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    to top,
-    rgba(22, 38, 74, 0.75) 0%,
-    rgba(22, 38, 74, 0.1) 60%,
+    0deg,
+    rgba(46, 26, 71, 0.75) 0%,
+    rgba(46, 26, 71, 0.15) 60%,
     transparent 100%
   );
 }
 
 .content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 28px;
+  position: relative;
   z-index: 1;
+  padding: 28px;
+  color: white;
 }
 
 .label {
-  font-size: var(--text-micro);
+  font-size: var(--text-eyebrow);
   font-weight: 600;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--gold-light);
   margin-bottom: 8px;
@@ -59,19 +62,12 @@
 
 .title {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: var(--text-h3);
   font-weight: 500;
-  color: white;
+  line-height: 1.15;
 }
 
 @media (max-width: 1023px) {
-  .grid { grid-template-columns: repeat(2, 1fr); }
-  .card { height: 360px; }
-  .card:last-child { grid-column: span 2; height: 300px; }
-}
-
-@media (max-width: 767px) {
   .grid { grid-template-columns: 1fr; }
   .card { height: 320px; }
-  .card:last-child { grid-column: span 1; }
 }
