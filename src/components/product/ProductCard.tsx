@@ -26,8 +26,8 @@ export default function ProductCard({
   const [activeImage, setActiveImage] = useState(0);
   const hasSecondImage = !!hoverImage;
   const cardClass = compact ? `${styles.card} ${styles.compact}` : styles.card;
-  const placeholderSrc = '/placeholder-product.svg';
-  const imgSrc = primaryImage || placeholderSrc;
+  const fallbackSrc = `/products/${slug}.jpg`;
+  const imgSrc = primaryImage || fallbackSrc;
   const img2Src = hoverImage || '';
 
   return (

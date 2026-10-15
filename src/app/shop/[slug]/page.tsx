@@ -48,7 +48,7 @@ export default function ProductDetailPage() {
   }
 
   const currentPrice = selectedVariant?.price_override || selectedVariant?.price || product.base_price;
-  const images = product.images.length > 0 ? product.images : [{ id: 0, image: '/placeholder-product.svg', alt_text: product.name, is_primary: true, sort_order: 0, image_alt: null }];
+  const images = product.images.length > 0 ? product.images : [{ id: 0, image: `/products/${product.slug}.jpg`, alt_text: product.name, is_primary: true, sort_order: 0, image_alt: null }];
 
   return (
     <div className="section">
