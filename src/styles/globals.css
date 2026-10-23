@@ -1,34 +1,34 @@
 /* =============================================================================
-   GLORYBELLE - Design Tokens
-   Source: design.md
+   GLORYBELLE — Design System Tokens & Global Styles
+   Source: design.md (2026)
    ============================================================================= */
 
 :root {
-  /* Palette (design.md) */
-  --ink: #2E1A47;
-  --ivory: #F7F2FC;
-  --ivory-2: #ECE0F8;
-  --gold: #E5B80B;
-  --gold-light: #F4D35E;
-  --gold-deep: #A8790A;
-  --emerald: #2C4E9C;
-  --emerald-deep: #16264A;
-  --rosewood: #7C3AAD;
-  --line: rgba(46, 26, 71, 0.13);
-  --line-strong: rgba(46, 26, 71, 0.22);
+  /* Palette (design.md §2.1) */
+  --ink: #14201C;
+  --ivory: #F6F1E7;
+  --ivory-2: #EFE7D6;
+  --gold: #B9924F;
+  --gold-light: #E4C583;
+  --gold-deep: #8C6B33;
+  --emerald: #1F4D3E;
+  --emerald-deep: #132F26;
+  --rosewood: #7A3226;
+  --line: rgba(20, 32, 28, 0.13);
+  --line-strong: rgba(20, 32, 28, 0.22);
 
-  /* Shadows */
-  --shadow: 0 20px 45px -20px rgba(46, 26, 71, 0.35);
+  /* Shadows (design.md §4.2) */
+  --shadow: 0 20px 45px -20px rgba(20, 32, 28, 0.35);
   --shadow-hover: 0 30px 60px -20px rgba(0, 0, 0, 0.5);
   --shadow-widget: 0 14px 30px -14px rgba(0, 0, 0, 0.38);
   --shadow-deep: 0 30px 60px -20px rgba(0, 0, 0, 0.5);
-  --shadow-collection: 0 22px 44px -10px rgba(46, 26, 71, 0.25);
+  --shadow-collection: 0 22px 44px -10px rgba(20, 32, 28, 0.25);
 
-  /* Typography */
-  --font-display: var(--font-fraunces), 'Fraunces', serif;
-  --font-body: var(--font-manrope), 'Manrope', sans-serif;
+  /* Typography (design.md §3) */
+  --font-display: var(--font-fraunces, 'Fraunces'), serif;
+  --font-body: var(--font-manrope, 'Manrope'), sans-serif;
 
-  /* Type Scale */
+  /* Type Scale (design.md §3.2) */
   --text-hero: clamp(38px, 5.2vw, 64px);
   --text-h2: clamp(30px, 3.8vw, 46px);
   --text-h3: clamp(22px, 2.4vw, 28px);
@@ -39,7 +39,7 @@
   --text-card-name: 13.5px;
   --text-card-price: 12px;
 
-  /* Spacing */
+  /* Spacing (design.md §4.5) */
   --section-pad: 140px;
   --section-pad-mobile: 88px;
   --container-max: 1240px;
@@ -48,7 +48,7 @@
   --grid-gap: 26px;
   --grid-gap-lg: 44px;
 
-  /* Radius */
+  /* Radius (design.md §4.1) */
   --radius-pill: 40px;
   --radius-card: 3px;
   --radius-carousel: 4px;
@@ -56,7 +56,7 @@
   --radius-collection: 14px;
   --radius-testimonial: 8px;
 
-  /* Motion */
+  /* Motion (design.md §4.3) */
   --ease-luxury: cubic-bezier(0.22, 0.68, 0.3, 1);
   --duration-card: 0.3s;
   --duration-image: 0.5s;
@@ -72,6 +72,7 @@
   --z-chat: 150;
 }
 
+/* Reduced motion (design.md §4.3 — non-negotiable) */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-card: 0.001ms;
@@ -83,12 +84,10 @@
 }
 
 /* =============================================================================
-   Global Styles
+   Reset & Base
    ============================================================================= */
 
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -135,7 +134,10 @@ button {
 
 ul, ol { list-style: none; }
 
-/* Container */
+/* =============================================================================
+   Layout Utilities
+   ============================================================================= */
+
 .container {
   max-width: var(--container-max);
   margin: 0 auto;
@@ -143,23 +145,21 @@ ul, ol { list-style: none; }
 }
 
 @media (max-width: 767px) {
-  .container {
-    padding: 0 var(--container-pad-mobile);
-  }
+  .container { padding: 0 var(--container-pad-mobile); }
 }
 
-/* Section spacing */
 .section {
   padding: var(--section-pad) 0;
 }
 
 @media (max-width: 767px) {
-  .section {
-    padding: var(--section-pad-mobile) 0;
-  }
+  .section { padding: var(--section-pad-mobile) 0; }
 }
 
-/* Typography utilities */
+/* =============================================================================
+   Typography Utilities (design.md §3.2)
+   ============================================================================= */
+
 .heading-display {
   font-family: var(--font-display);
   font-size: var(--text-hero);
@@ -192,7 +192,10 @@ ul, ol { list-style: none; }
   color: var(--gold-deep);
 }
 
-/* Buttons */
+/* =============================================================================
+   Buttons (design.md §4.1 — pill-shaped, soft, approachable)
+   ============================================================================= */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -210,39 +213,31 @@ ul, ol { list-style: none; }
   text-decoration: none;
 }
 
-.btn:active {
-  transform: scale(0.97);
-}
+.btn:active { transform: scale(0.97); }
 
 .btn-primary {
   background-color: var(--emerald-deep);
   color: white;
 }
-
-.btn-primary:hover {
-  background-color: var(--ink);
-}
+.btn-primary:hover { background-color: var(--ink); }
 
 .btn-secondary {
   background-color: transparent;
   color: var(--ink);
   border: 1.5px solid var(--line-strong);
 }
-
-.btn-secondary:hover {
-  border-color: var(--ink);
-}
+.btn-secondary:hover { border-color: var(--ink); }
 
 .btn-gold {
   background-color: var(--gold);
   color: var(--ink);
 }
+.btn-gold:hover { background-color: var(--gold-light); }
 
-.btn-gold:hover {
-  background-color: var(--gold-light);
-}
+/* =============================================================================
+   Small Utilities
+   ============================================================================= */
 
-/* Eyebrow with line prefix */
 .eyebrow-line {
   display: flex;
   align-items: center;
@@ -256,20 +251,16 @@ ul, ol { list-style: none; }
   background: var(--gold-deep);
 }
 
-/* Hairline divider */
 .divider {
   width: 100%;
   height: 1px;
   background: var(--line);
 }
 
-/* Visually hidden */
 .sr-only {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;

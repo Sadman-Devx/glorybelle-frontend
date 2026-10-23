@@ -1,29 +1,24 @@
-/* Toast — bottom-center, 2.6s auto-dismiss */
-
+/* Toast (design.md §1.4 — bottom-center, auto-dismiss 2.6s) */
 .toast {
   position: fixed;
   bottom: 32px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(20px);
   z-index: var(--z-toast);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: var(--radius-pill);
-  background: var(--emerald-deep);
+  background: var(--ink);
   color: white;
+  padding: 14px 24px;
+  border-radius: var(--radius-pill);
   font-size: 13px;
   font-weight: 600;
-  box-shadow: var(--shadow-deep);
-  animation: toastIn 0.3s var(--ease-luxury);
+  box-shadow: var(--shadow-widget);
+  opacity: 0;
+  transition: all var(--duration-card) var(--ease-luxury);
+  pointer-events: none;
 }
 
-@keyframes toastIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .toast { animation: none; }
+.toastVisible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
 }

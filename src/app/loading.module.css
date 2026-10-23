@@ -1,10 +1,9 @@
-/* Loading — design.md §1.7 */
-
-.loadingWrap {
+/* Loading spinner */
+.loading {
+  min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
 }
 
 .spinner {

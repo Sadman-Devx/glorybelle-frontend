@@ -1,129 +1,126 @@
-/* QuickViewModal — design.md §4.6 */
-
-.overlay {
+/* Quick View Modal (design.md §4.6 — scale-in, 2-col grid) */
+.backdrop {
   position: fixed;
   inset: 0;
+  background: rgba(20, 32, 28, 0.4);
   z-index: var(--z-modal);
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--duration-modal) ease, visibility var(--duration-modal) ease;
+}
+
+.backdropOpen {
+  opacity: 1;
+  visibility: visible;
 }
 
 .modal {
-  position: relative;
-  max-width: 880px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  z-index: calc(var(--z-modal) + 1);
+  width: 880px;
+  max-width: 94vw;
+  max-height: 88vh;
   background: var(--ivory);
   border-radius: var(--radius-modal);
-  animation: scaleIn var(--duration-modal) var(--ease-luxury);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--duration-modal) var(--ease-luxury);
 }
 
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+.modalOpen {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
 }
 
-.close {
+.imageCol {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--ivory-2);
+}
+
+.detailCol {
+  padding: 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.closeBtn {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 2;
-  width: 36px;
-  height: 36px;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: white;
+  border: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.loading {
-  padding: 80px;
-  text-align: center;
-  color: rgba(46, 26, 71, 0.5);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.imageWrap {
-  position: relative;
-  aspect-ratio: 1 / 1;
-}
-
-.info {
-  padding: 36px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.name {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.price {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.desc {
-  font-size: 13.5px;
-  line-height: 1.65;
-  color: rgba(46, 26, 71, 0.65);
-  margin-bottom: 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.variants {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
-
-.variantBtn {
-  padding: 8px 14px;
-  border: 1.5px solid var(--line);
-  border-radius: 6px;
-  background: white;
-  font-family: var(--font-body);
-  font-size: 12px;
+  color: var(--ink);
+  z-index: 1;
   cursor: pointer;
   transition: all var(--duration-card) ease;
 }
 
-.variantBtn:hover { border-color: var(--ink); }
-.active { border-color: var(--emerald-deep); background: var(--ivory-2); font-weight: 600; }
+.closeBtn:hover { border-color: var(--ink); }
 
-.viewFull {
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--emerald);
-  margin-top: 8px;
-  transition: color var(--duration-card) ease;
+.modalName {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 8px;
 }
 
-.viewFull:hover { color: var(--emerald-deep); }
+.modalMetal {
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: 16px;
+}
+
+.modalPrice {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+.modalDesc {
+  font-size: var(--text-body);
+  line-height: 1.7;
+  color: rgba(20, 32, 28, 0.7);
+  margin-bottom: 24px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+/* Trust row inside modal */
+.modalTrust {
+  display: flex;
+  gap: 16px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--gold-deep);
+}
 
 @media (max-width: 700px) {
-  .grid { grid-template-columns: 1fr; }
-  .imageWrap { aspect-ratio: 4 / 3; }
-  .info { padding: 24px; }
+  .modal { grid-template-columns: 1fr; max-height: 94vh; }
+  .imageCol { max-height: 300px; }
 }

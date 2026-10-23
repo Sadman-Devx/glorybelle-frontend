@@ -1,17 +1,26 @@
+/* Stats (design.md §4.6 — "Stat Block") — text-only, no card borders */
 .stats {
-  padding: 64px 0;
+  padding: 56px 0;
   background: white;
   border-bottom: 1px solid var(--line);
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
 }
 
-.stat {}
+.stat {
+  text-align: center;
+  padding: 0 48px;
+}
+
+/* Hairline vertical divider between stats */
+.stat + .stat {
+  border-left: 1px solid var(--line);
+}
 
 .number {
   font-family: var(--font-display);
@@ -19,17 +28,19 @@
   font-weight: 500;
   line-height: 1;
   color: var(--ink);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .label {
   font-size: var(--text-micro);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold-deep);
 }
 
-@media (max-width: 575px) {
-  .grid { grid-template-columns: 1fr; gap: 28px; }
+@media (max-width: 767px) {
+  .grid { flex-direction: column; gap: 28px; }
+  .stat + .stat { border-left: none; border-top: 1px solid var(--line); padding-top: 28px; }
+  .stat { padding: 0; }
 }

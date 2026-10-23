@@ -1,3 +1,4 @@
+/* Homepage Sections */
 .collections {
   background: var(--ivory);
 }
@@ -10,6 +11,7 @@
   margin-bottom: 40px;
 }
 
+/* Craft Story section (design.md §1.2 — ink dark bg) */
 .craft {
   background: var(--ink);
   color: white;
@@ -18,11 +20,9 @@
 .craftInner {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 64px;
   align-items: center;
 }
-
-.craftText {}
 
 .craftDesc {
   font-size: 15px;
@@ -33,8 +33,9 @@
 
 .craftImage {
   aspect-ratio: 4 / 3;
-  border-radius: var(--radius-collection);
+  border-radius: var(--radius-testimonial);
   overflow: hidden;
+  box-shadow: var(--shadow-deep);
 }
 
 .craftImagePlaceholder {
@@ -50,8 +51,10 @@
   font-size: 13px;
 }
 
+/* CTA Section */
 .ctaSection {
   background: var(--ivory);
+  text-align: center;
 }
 
 @media (max-width: 767px) {

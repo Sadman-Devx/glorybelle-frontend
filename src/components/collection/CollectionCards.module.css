@@ -1,7 +1,12 @@
+/* Collection Cards (design.md §4.6 — largest radius 14px, editorial feel) */
+.section {
+  background: var(--ivory);
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--grid-gap);
+  gap: 24px;
 }
 
 .card {
@@ -11,15 +16,17 @@
   overflow: hidden;
   display: flex;
   align-items: flex-end;
+  cursor: pointer;
   transition: transform var(--duration-collection) var(--ease-luxury),
               box-shadow var(--duration-collection) var(--ease-luxury);
 }
 
 .card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-collection);
 }
 
+/* Full-bleed background image */
 .bg {
   position: absolute;
   inset: 0;
@@ -29,16 +36,17 @@
 }
 
 .card:hover .bg {
-  transform: scale(1.05);
+  transform: scale(1.07);
 }
 
+/* Bottom-anchored dark gradient */
 .overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     0deg,
-    rgba(46, 26, 71, 0.75) 0%,
-    rgba(46, 26, 71, 0.15) 60%,
+    rgba(20, 32, 28, 0.78) 0%,
+    rgba(20, 32, 28, 0.20) 50%,
     transparent 100%
   );
 }
@@ -69,5 +77,5 @@
 
 @media (max-width: 1023px) {
   .grid { grid-template-columns: 1fr; }
-  .card { height: 320px; }
+  .card { height: 360px; }
 }

@@ -1,3 +1,27 @@
-.page { min-height: 70vh; display: flex; align-items: center; justify-content: center; }
-.heading { font-family: var(--font-display); font-size: var(--text-hero); font-weight: 500; margin: 20px 0 16px; }
-.message { font-size: 15px; line-height: 1.7; color: rgba(46,26,71,0.6); margin-bottom: 32px; max-width: 400px; margin-left: auto; margin-right: auto; }
+/* 404 Page (design.md §4.7 — styled, not default framework page) */
+.notFound {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.inner {
+  max-width: 480px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.desc {
+  font-size: 14px;
+  color: rgba(20, 32, 28, 0.6);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}

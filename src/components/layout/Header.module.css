@@ -1,4 +1,4 @@
-/* Announcement bar */
+/* Announcement bar (design.md §1.2) — emerald-deep, rotates 4s */
 .announcement {
   background: var(--emerald-deep);
   color: white;
@@ -21,7 +21,7 @@
 .fadeIn { opacity: 1; }
 .fadeOut { opacity: 0; }
 
-/* Header */
+/* Header — sticky, white, hairline bottom */
 .header {
   position: sticky;
   top: 0;
@@ -32,7 +32,7 @@
 }
 
 .scrolled {
-  box-shadow: 0 4px 20px rgba(46, 26, 71, 0.08);
+  box-shadow: 0 4px 20px rgba(20, 32, 28, 0.08);
 }
 
 .headerInner {
@@ -42,6 +42,7 @@
   height: 64px;
 }
 
+/* Nav — categories left/right of centered logo */
 .navLeft, .navRight {
   display: flex;
   align-items: center;
@@ -67,9 +68,11 @@
   color: var(--gold-deep);
 }
 
+/* Logo — centered */
 .logo {
   flex-shrink: 0;
   text-align: center;
+  padding: 0 20px;
 }
 
 .logoText {
@@ -80,10 +83,11 @@
   color: var(--ink);
 }
 
+/* Utility icons */
 .icons {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-left: 20px;
 }
 
@@ -98,6 +102,7 @@
   transition: all var(--duration-card) ease;
   background: none;
   border: none;
+  position: relative;
 }
 
 .iconBtn:hover {
@@ -105,7 +110,24 @@
   color: var(--gold-deep);
 }
 
-/* Hamburger */
+/* Badge (cart count) */
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--emerald);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hamburger (mobile) */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -124,10 +146,6 @@
   display: block;
 }
 
-.open:first-child { transform: rotate(45deg) translate(4px, 4px); }
-.open:nth-child(2) { opacity: 0; }
-.open:last-child { transform: rotate(-45deg) translate(4px, -4px); }
-
 /* Mobile menu */
 .mobileMenu {
   display: none;
@@ -138,7 +156,7 @@
 }
 
 .mobileLink {
-  padding: 12px 0;
+  padding: 14px 0;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.04em;

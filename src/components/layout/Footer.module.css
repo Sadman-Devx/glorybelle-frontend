@@ -1,5 +1,6 @@
+/* Footer (design.md §2.1 — emerald-deep background) */
 .footer {
-  background: var(--ink);
+  background: var(--emerald-deep);
   color: rgba(255, 255, 255, 0.7);
   padding: 80px 0 0;
 }
@@ -9,8 +10,6 @@
   grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
   gap: 48px;
 }
-
-.col {}
 
 .brand {
   font-family: var(--font-display);
@@ -69,14 +68,13 @@
   font-family: var(--font-body);
   font-size: 13px;
   outline: none;
+  transition: border-color var(--duration-card) ease;
 }
 
 .nlInput::placeholder { color: rgba(255, 255, 255, 0.35); }
 .nlInput:focus { border-color: var(--gold); }
 
-.nlBtn {
-  white-space: nowrap;
-}
+.nlBtn { white-space: nowrap; }
 
 .nlSuccess { font-size: 12px; color: var(--gold-light); margin-top: 8px; }
 .nlError { font-size: 12px; color: #e88; margin-top: 8px; }
