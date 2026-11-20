@@ -4,6 +4,7 @@ import TrustStrip from '@/components/ui/TrustStrip';
 import BestsellerCarousel from '@/components/product/BestsellerCarousel';
 import CollectionCards from '@/components/collection/CollectionCards';
 import RevealOnScroll from '@/components/animation/RevealOnScroll';
+import Link from 'next/link';
 import styles from './page.module.css';
 
 export default function HomePage() {
@@ -32,7 +33,7 @@ export default function HomePage() {
           <RevealOnScroll>
             <div className={styles.sectionHeader}>
               <span className="eyebrow eyebrow-line">I preferiti</span>
-              <h2 className="heading-section">Piu Venduti</h2>
+              <h2 className="heading-section">Più Venduti</h2>
             </div>
           </RevealOnScroll>
           <RevealOnScroll delay={1}>
@@ -46,19 +47,19 @@ export default function HomePage() {
           <RevealOnScroll>
             <div className={styles.craftInner}>
               <div className={styles.craftText}>
-                <span className="eyebrow eyebrow-line" style={{ color: 'var(--gold-light)' }}>
+                <span className={`eyebrow eyebrow-line ${styles.craftEyebrow}`}>
                   La Nostra Arte
                 </span>
-                <h2 className="heading-section" style={{ color: 'white' }}>
+                <h2 className={`heading-section ${styles.craftHeading}`}>
                   Tradizione Artigianale
                 </h2>
                 <p className={styles.craftDesc}>
                   Ogni gioiello GLORYBELLE nasce dalla passione e dalla maestria
-                  di artigiani italiani. Dalla selezione dei materiali piu pregiati
-                  alla rifinitura finale, ogni passaggio e curato nei minimi
+                  di artigiani italiani. Dalla selezione dei materiali più pregiati
+                  alla rifinitura finale, ogni passaggio è curato nei minimi
                   dettagli per creare pezzi che durano per sempre.
                 </p>
-                <a href="/about" className="btn btn-gold">Scopri di piu</a>
+                <Link href="/about" className="btn btn-gold">Scopri di più</Link>
               </div>
               <div className={styles.craftImage}>
                 <div className={styles.craftImagePlaceholder}>
@@ -74,19 +75,19 @@ export default function HomePage() {
       </section>
 
       <section className={`section ${styles.ctaSection}`}>
-        <div className="container" style={{ textAlign: 'center' as const }}>
+        <div className={`container ${styles.ctaContainer}`}>
           <RevealOnScroll>
-            <span className="eyebrow eyebrow-line" style={{ justifyContent: 'center' }}>
+            <span className={`eyebrow eyebrow-line ${styles.ctaEyebrow}`}>
               Collezione Completa
             </span>
-            <h2 className="heading-section" style={{ marginTop: '16px' }}>
+            <h2 className={`heading-section ${styles.ctaHeading}`}>
               Esplora Tutti i Gioielli
             </h2>
-            <p style={{ maxWidth: '480px', margin: '16px auto 32px', color: 'rgba(46,26,71,0.65)' }}>
+            <p className={styles.ctaDesc}>
               Scopri la nostra selezione completa di anelli, collane, orecchini e
               bracciali artigianali italiani.
             </p>
-            <a href="/shop" className="btn btn-primary">Vai allo Shop</a>
+            <Link href="/shop" className="btn btn-primary">Vai allo Shop</Link>
           </RevealOnScroll>
         </div>
       </section>

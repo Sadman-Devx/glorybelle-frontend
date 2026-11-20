@@ -12,6 +12,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: calc(var(--z-header) + 1);
 }
 
 .announcementText {
@@ -21,18 +23,26 @@
 .fadeIn { opacity: 1; }
 .fadeOut { opacity: 0; }
 
-/* Header — sticky, white, hairline bottom */
+/* Header — TRANSPARENT by default, overlays the hero.
+   Transitions to solid white on scroll (via .scrolled class) */
 .header {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: 34px; /* below announcement bar (34px height) */
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: var(--z-header);
-  background: white;
-  border-bottom: 1px solid var(--line);
-  transition: box-shadow var(--duration-card) ease;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, top 0.3s ease;
 }
 
+/* On scroll: solid white background */
 .scrolled {
+  background: white;
+  border-bottom-color: var(--line);
   box-shadow: 0 4px 20px rgba(20, 32, 28, 0.08);
+  top: 0; /* snap to top when announcement scrolls away */
 }
 
 .headerInner {
@@ -42,7 +52,7 @@
   height: 64px;
 }
 
-/* Nav — categories left/right of centered logo */
+/* Nav links — white by default (on transparent bg), dark on scroll */
 .navLeft, .navRight {
   display: flex;
   align-items: center;
@@ -59,16 +69,25 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink);
-  transition: color var(--duration-card) ease;
+  color: white;
+  transition: color 0.4s ease;
   white-space: nowrap;
 }
 
 .navLink:hover {
+  color: var(--gold-light);
+}
+
+/* On scroll: dark text */
+.scrolled .navLink {
+  color: var(--ink);
+}
+
+.scrolled .navLink:hover {
   color: var(--gold-deep);
 }
 
-/* Logo — centered */
+/* Logo — centered, white by default */
 .logo {
   flex-shrink: 0;
   text-align: center;
@@ -80,10 +99,15 @@
   font-size: 22px;
   font-weight: 500;
   letter-spacing: 0.12em;
+  color: white;
+  transition: color 0.4s ease;
+}
+
+.scrolled .logoText {
   color: var(--ink);
 }
 
-/* Utility icons */
+/* Utility icons — white by default, dark on scroll */
 .icons {
   display: flex;
   align-items: center;
@@ -98,19 +122,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ink);
-  transition: all var(--duration-card) ease;
+  color: white;
+  transition: all 0.4s ease;
   background: none;
   border: none;
   position: relative;
 }
 
 .iconBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--gold-light);
+}
+
+.scrolled .iconBtn {
+  color: var(--ink);
+}
+
+.scrolled .iconBtn:hover {
   background: var(--ivory-2);
   color: var(--gold-deep);
 }
 
-/* Badge (cart count) */
+/* Badge */
 .badge {
   position: absolute;
   top: 2px;
@@ -118,8 +151,8 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--emerald);
-  color: white;
+  background: var(--gold);
+  color: var(--ink);
   font-size: 9px;
   font-weight: 700;
   display: flex;
@@ -141,9 +174,13 @@
 .hamburgerLine {
   width: 20px;
   height: 2px;
-  background: var(--ink);
-  transition: all var(--duration-card) ease;
+  background: white;
+  transition: all 0.3s ease;
   display: block;
+}
+
+.scrolled .hamburgerLine {
+  background: var(--ink);
 }
 
 /* Mobile menu */

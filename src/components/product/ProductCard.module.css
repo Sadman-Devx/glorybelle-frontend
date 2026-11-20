@@ -1,8 +1,13 @@
-/* Product Card (design.md §4.6 — 3px radius, double-image hover) */
+/* =============================================================================
+   Product Card (design.md §4.6)
+   - Grid card: 3px radius, 2-image hover-swap, 6px dots, scale 1.08 zoom
+   - Carousel card (compact): 220px wide, 4px radius (design.md §4.6 row 2)
+   ============================================================================= */
+
 .card {
   position: relative;
   background: white;
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-card);          /* 3px — grid card per design.md §4.6 */
   border: 1px solid var(--line);
   overflow: hidden;
   transition: transform var(--duration-card) ease,
@@ -14,13 +19,17 @@
   box-shadow: var(--shadow);
 }
 
+/* Carousel card — 220px wide, 4px radius (design.md §4.6 row 2) */
 .compact {
   max-width: 220px;
   flex-shrink: 0;
   border: 1px solid var(--line);
+  border-radius: var(--radius-carousel);     /* 4px — was using --radius-card (3px) — FIXED */
 }
 
-/* Media container */
+/* =============================================================================
+   Media container
+   ============================================================================= */
 .mediaWrap {
   position: relative;
   overflow: hidden;
@@ -34,11 +43,14 @@
   position: relative;
   aspect-ratio: 1 / 1;
   background: var(--ivory-2);
+  overflow: hidden;
 }
 
+/* Two-image crossfade (design.md §4.6.1 — "cross-fades from img → img2 on mouse-enter, .4s ease") */
 .image {
   object-fit: cover;
-  transition: opacity var(--duration-image) ease;
+  transition: opacity 0.4s ease,
+              transform var(--duration-image) ease;   /* scale zoom on hover */
 }
 
 .imagePrimary {}
@@ -52,7 +64,15 @@
 .imageHidden { opacity: 0; }
 .imageVisible { opacity: 1; }
 
-/* Hallmark badge — 40x40 circle, top-left */
+/* Image zoom on hover — design.md §4.3 row "Image zoom on hover": scale(1.06-1.08) on .5s ease */
+.card:hover .imageVisible,
+.card:hover .imagePrimary:not(.imageHidden) {
+  transform: scale(1.08);
+}
+
+/* =============================================================================
+   Hallmark badge — 40x40 circle, top-left (design.md §4.6 row 1)
+   ============================================================================= */
 .hallmark {
   position: absolute;
   top: 10px;
@@ -72,7 +92,10 @@
   letter-spacing: 0.04em;
 }
 
-/* Wishlist — 34x34 circle, top-right, hidden until hover */
+/* =============================================================================
+   Wishlist — 34x34 circle, top-right (design.md §4.6 row 1)
+   Hidden until hover on grid cards; always visible on compact carousel cards
+   ============================================================================= */
 .wishlistBtn {
   position: absolute;
   top: 10px;
@@ -99,13 +122,25 @@
   transform: translateY(0);
 }
 
+/* Compact carousel cards always show the wishlist icon (28x28 per design.md §4.6 row 2) */
+.compact .wishlistBtn {
+  width: 28px;
+  height: 28px;
+  top: 10px;
+  right: 10px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .wishlisted {
   opacity: 1;
   color: var(--rosewood);
   transform: translateY(0);
 }
 
-/* Quick View bar — slides up on hover */
+/* =============================================================================
+   Quick View bar — slides up on hover (design.md §4.6 row 1, §4.3 row "Drawer slide-in")
+   ============================================================================= */
 .quickView {
   position: absolute;
   bottom: 0;
@@ -135,7 +170,11 @@
   transform: translateY(0);
 }
 
-/* Image dots — 6px, for 2-image cards */
+/* =============================================================================
+   Image dots — 6px, for 2-image cards (design.md §4.6.1)
+   Hidden on hover-capable screens (CSS @media hover: hover) — the hover swap
+   replaces the need for dots on desktop. Visible on touch devices.
+   ============================================================================= */
 .dots {
   position: absolute;
   bottom: 12px;
@@ -144,6 +183,13 @@
   display: flex;
   gap: 6px;
   z-index: 1;
+}
+
+/* Hide dots on devices that support hover — design.md §4.6.1: "Desktop (hover-capable): on mouse-enter cross-fades" */
+@media (hover: hover) {
+  .dots {
+    display: none;
+  }
 }
 
 .dot {
@@ -161,9 +207,15 @@
   background: var(--ink);
 }
 
-/* Body */
+/* =============================================================================
+   Body
+   ============================================================================= */
 .body {
   padding: 14px 14px 18px;
+}
+
+.compact .body {
+  padding: 12px 14px 14px;
 }
 
 .nameLink {
@@ -183,6 +235,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
 .metal {
@@ -196,10 +249,18 @@
 .price {
   font-size: var(--text-card-price);
   font-weight: 700;
-  color: var(--ink);
+  color: var(--emerald);
 }
 
+/* =============================================================================
+   Reduced motion — design.md §4.3 (non-negotiable)
+   ============================================================================= */
 @media (prefers-reduced-motion: reduce) {
   .card:hover { transform: none; }
+  .card:hover .imageVisible,
+  .card:hover .imagePrimary:not(.imageHidden) {
+    transform: none;
+  }
   .wishlistBtn, .quickView { opacity: 1; transform: none; }
+  .image { transition: none; }
 }
