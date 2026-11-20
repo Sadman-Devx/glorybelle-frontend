@@ -60,3 +60,40 @@
 @media (max-width: 767px) {
   .craftInner { grid-template-columns: 1fr; gap: 32px; }
 }
+
+/* Craft section eyebrow + heading */
+.craftEyebrow {
+  color: var(--gold-light);
+}
+.craftEyebrow::before { background: var(--gold-light); }
+
+.craftHeading {
+  color: white;
+  margin-top: 12px;
+}
+
+/* Process section (Stamps) */
+.process {
+  background: var(--ivory-2);
+}
+
+/* CTA section */
+.ctaContainer {
+  text-align: center;
+}
+
+.ctaEyebrow {
+  justify-content: center;
+}
+
+.ctaHeading {
+  margin-top: 16px;
+}
+
+.ctaDesc {
+  max-width: 480px;
+  margin: 16px auto 32px;
+  color: var(--ink);
+  opacity: 0.7;
+  line-height: 1.7;
+}

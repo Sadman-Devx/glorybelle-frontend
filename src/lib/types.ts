@@ -89,7 +89,12 @@ export interface PaginatedResponse<T> {
 
 export interface CartItem {
   id: number;
-  variant: ProductVariant & { product_name: string; product_slug: string };
+  variant: ProductVariant & {
+    product_name: string;
+    product_slug: string;
+    /** Optional image URL — backend's CartItemSerializer may include it. If absent, the UI falls back to /products/{slug}.jpg */
+    image_url?: string;
+  };
   quantity: number;
   line_total: string;
   reservation_expires_at: string;

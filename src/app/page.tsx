@@ -5,6 +5,9 @@ import BestsellerCarousel from '@/components/product/BestsellerCarousel';
 import CollectionCards from '@/components/collection/CollectionCards';
 import RevealOnScroll from '@/components/animation/RevealOnScroll';
 import Link from 'next/link';
+import Stamps from '@/components/ui/Stamps';
+import Testimonials from '@/components/social/Testimonials';
+import InstagramGrid from '@/components/social/InstagramGrid';
 import styles from './page.module.css';
 
 export default function HomePage() {
@@ -74,6 +77,21 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Process steps — Stamps (design.md §4.6 row 7) */}
+      <section className={`section ${styles.process}`}>
+        <div className="container">
+          <RevealOnScroll>
+            <div className={styles.sectionHeader}>
+              <span className="eyebrow eyebrow-line">Come Lavoriamo</span>
+              <h2 className="heading-section">Il Processo</h2>
+            </div>
+          </RevealOnScroll>
+          <RevealOnScroll delay={1}>
+            <Stamps />
+          </RevealOnScroll>
+        </div>
+      </section>
+
       <section className={`section ${styles.ctaSection}`}>
         <div className={`container ${styles.ctaContainer}`}>
           <RevealOnScroll>
@@ -91,6 +109,12 @@ export default function HomePage() {
           </RevealOnScroll>
         </div>
       </section>
+
+      {/* Testimonials — dark split layout (design.md §4.6 row 5) */}
+      <Testimonials />
+
+      {/* Instagram grid — 4-col 0 radius (design.md §4.6 row 6) */}
+      <InstagramGrid />
     </>
   );
 }

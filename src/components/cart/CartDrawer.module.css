@@ -1,9 +1,16 @@
-/* Cart Drawer (design.md §1.4, §4.6) — slides from right */
+/* =============================================================================
+   Cart Drawer (design.md §1.4 + §4.6 row 8)
+   - slides in from the right (translateX, .35s cubic-bezier(.22,.68,.3,1))
+   - 420px wide, max 92vw
+   - each line item is a mini horizontal card (thumbnail + name + qty + remove)
+   ============================================================================= */
+
+/* Backdrop */
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(20, 32, 28, 0.4);
-  z-index: var(--z-drawer);
+  background: rgba(20, 32, 28, 0.45);
+  z-index: var(--z-drawer);                       /* 200 */
   opacity: 0;
   visibility: hidden;
   transition: opacity var(--duration-modal) ease, visibility var(--duration-modal) ease;
@@ -14,6 +21,7 @@
   visibility: visible;
 }
 
+/* Drawer panel */
 .drawer {
   position: fixed;
   top: 0;
@@ -22,7 +30,7 @@
   max-width: 92vw;
   height: 100vh;
   background: var(--ivory);
-  z-index: calc(var(--z-drawer) + 1);
+  z-index: calc(var(--z-drawer) + 1);            /* 201 */
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
@@ -34,19 +42,22 @@
   transform: translateX(0);
 }
 
+/* Header */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
   border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 500;
   color: var(--ink);
+  margin: 0;
 }
 
 .closeBtn {
@@ -57,17 +68,22 @@
   align-items: center;
   justify-content: center;
   color: var(--ink);
-  transition: background var(--duration-card) ease;
   background: none;
   border: none;
+  cursor: pointer;
+  transition: background var(--duration-card) ease;
 }
 
-.closeBtn:hover { background: var(--ivory-2); }
+.closeBtn:hover {
+  background: var(--ivory-2);
+  color: var(--gold-deep);
+}
 
+/* Items list */
 .items {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 24px;
+  padding: 12px 24px;
 }
 
 .item {
@@ -77,51 +93,51 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* Cart item thumbnail — 72x72, 3px radius */
 .itemImage {
+  position: relative;
   width: 72px;
   height: 72px;
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-card);              /* 3px */
   overflow: hidden;
   background: var(--ivory-2);
   flex-shrink: 0;
 }
 
-.itemDetails { flex: 1; }
+.itemDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
 .itemName {
   font-family: var(--font-display);
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 500;
   color: var(--ink);
-  margin-bottom: 4px;
+  margin: 0;
+  line-height: 1.3;
 }
 
 .itemMeta {
-  font-size: 11px;
-  color: var(--gold-deep);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 8px;
-}
-
-.itemPrice {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink);
+  font-size: 11.5px;
+  color: rgba(20, 32, 28, 0.5);
+  letter-spacing: 0.04em;
 }
 
 .itemQty {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .qtyBtn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  border: 1px solid var(--line-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,31 +146,62 @@
   background: white;
   cursor: pointer;
   transition: border-color var(--duration-card) ease;
+  font-family: var(--font-body);
+  font-weight: 600;
+  padding: 0;
 }
 
-.qtyBtn:hover { border-color: var(--ink); }
+.qtyBtn:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: var(--ivory-2);
+}
+
+.qtyBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 .qtyValue {
-  font-size: 13px;
-  font-weight: 600;
-  min-width: 20px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 22px;
   text-align: center;
+  color: var(--ink);
 }
 
 .removeBtn {
   font-size: 11px;
-  color: rgba(20, 32, 28, 0.4);
+  color: var(--rosewood);
   text-decoration: underline;
-  margin-top: 4px;
-  cursor: pointer;
   background: none;
   border: none;
   padding: 0;
+  margin-top: 4px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: opacity var(--duration-card) ease;
 }
 
-.removeBtn:hover { color: var(--rosewood); }
+.removeBtn:hover:not(:disabled) {
+  opacity: 0.7;
+}
 
-/* Trust row inside drawer */
+.removeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.itemPrice {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  align-self: center;
+  white-space: nowrap;
+}
+
+/* Trust row */
 .trust {
   padding: 14px 24px;
   border-top: 1px solid var(--line);
@@ -162,25 +209,34 @@
   gap: 16px;
   font-size: 11px;
   color: var(--gold-deep);
+  flex-shrink: 0;
 }
 
 .trustItem {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
-/* Footer / checkout */
+.trustItem svg {
+  stroke: var(--gold-deep);
+}
+
+/* Footer / subtotal + checkout CTA */
 .footer {
-  padding: 20px 24px;
+  padding: 18px 24px 24px;
   border-top: 1px solid var(--line);
   background: white;
+  flex-shrink: 0;
 }
 
 .subtotal {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 14px;
+  align-items: baseline;
+  margin-bottom: 4px;
 }
 
 .subtotalLabel {
@@ -189,13 +245,40 @@
 }
 
 .subtotalValue {
+  font-family: var(--font-body);
   font-size: 16px;
   font-weight: 700;
   color: var(--ink);
 }
 
+.sub {
+  font-size: 11.5px;
+  color: rgba(20, 32, 28, 0.5);
+  margin-bottom: 14px;
+}
+
 .checkoutBtn {
   width: 100%;
+  margin-bottom: 10px;
+}
+
+.continueBtn {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color var(--duration-card) ease;
+}
+
+.continueBtn:hover {
+  color: var(--gold-deep);
 }
 
 /* Empty state */
@@ -206,13 +289,13 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 48px 24px;
-  color: rgba(20, 32, 28, 0.45);
+  padding: 60px 24px;
+  gap: 6px;
 }
 
 .emptyIcon {
-  margin-bottom: 16px;
-  color: var(--gold-deep);
+  color: var(--line-strong);
+  margin-bottom: 12px;
 }
 
 .emptyText {
@@ -220,10 +303,21 @@
   font-size: 16px;
   font-weight: 500;
   color: var(--ink);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .emptySub {
   font-size: 13px;
   color: rgba(20, 32, 28, 0.5);
+  margin-bottom: 20px;
+}
+
+.empty .btn {
+  margin-top: 8px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .backdrop { transition: none; }
 }

@@ -37,7 +37,13 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
 }
 
 export const catalog = {
-  categories: () => apiFetch<Category[]>('/api/categories/'),
+  // DRF applies DEFAULT_PAGINATION_CLASS globally (config/settings/base.py:180),
+  // so /api/categories/ returns { count, next, previous, results } — not a bare array.
+  // Unwrap to plain Category[] so the UI can call .find() / .map() safely.
+  categories: async (): Promise<Category[]> => {
+    const res = await apiFetch<Category[] | PaginatedResponse<Category>>('/api/categories/');
+    return Array.isArray(res) ? res : (res as PaginatedResponse<Category>).results ?? [];
+  },
   products: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
     return apiFetch<PaginatedResponse<ProductListItem>>(`/api/products/${qs}`);

@@ -1,12 +1,22 @@
-/* Quick View Modal (design.md §4.6 — scale-in, 2-col grid) */
+/* =============================================================================
+   Quick View Modal (design.md §4.6 row 8 — scale-in, 2-col grid)
+   - max-width 880px, max-height 88vh, 4px radius
+   - scale-in from 0.95 → 1, .35s cubic-bezier(.22,.68,.3,1)
+   ============================================================================= */
+
+/* Backdrop */
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(20, 32, 28, 0.4);
-  z-index: var(--z-modal);
+  background: rgba(20, 32, 28, 0.55);
+  z-index: var(--z-modal);                        /* 300 */
   opacity: 0;
   visibility: hidden;
   transition: opacity var(--duration-modal) ease, visibility var(--duration-modal) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .backdropOpen {
@@ -14,20 +24,18 @@
   visibility: visible;
 }
 
+/* Modal */
 .modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
-  z-index: calc(var(--z-modal) + 1);
+  position: relative;
   width: 880px;
-  max-width: 94vw;
+  max-width: 100%;
   max-height: 88vh;
   background: var(--ivory);
-  border-radius: var(--radius-modal);
+  border-radius: var(--radius-modal);            /* 4px */
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  transform: scale(0.95) translateY(10px);
   opacity: 0;
   visibility: hidden;
   transition: all var(--duration-modal) var(--ease-luxury);
@@ -36,22 +44,10 @@
 .modalOpen {
   opacity: 1;
   visibility: visible;
-  transform: translate(-50%, -50%) scale(1);
+  transform: scale(1) translateY(0);
 }
 
-.imageCol {
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  background: var(--ivory-2);
-}
-
-.detailCol {
-  padding: 32px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
+/* Close button — 34x34 circle, top-right, offset outside the grid */
 .closeBtn {
   position: absolute;
   top: 14px;
@@ -65,62 +61,244 @@
   align-items: center;
   justify-content: center;
   color: var(--ink);
-  z-index: 1;
+  z-index: 5;
   cursor: pointer;
   transition: all var(--duration-card) ease;
 }
 
-.closeBtn:hover { border-color: var(--ink); }
+.closeBtn:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ivory);
+}
+
+/* Image column */
+.imageCol {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--ivory-2);
+}
+
+.imageCol img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Detail column */
+.detailCol {
+  padding: 40px 38px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
 
 .modalName {
   font-family: var(--font-display);
-  font-size: var(--text-h3);
+  font-size: 26px;
   font-weight: 500;
   color: var(--ink);
-  margin-bottom: 8px;
-}
-
-.modalMetal {
-  font-size: var(--text-eyebrow);
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold-deep);
-  margin-bottom: 16px;
+  margin: 8px 0 0;
+  line-height: 1.2;
 }
 
 .modalPrice {
-  font-size: 20px;
+  font-family: var(--font-body);
+  font-size: 19px;
   font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 20px;
+  color: var(--emerald);
+  margin: 12px 0 16px;
 }
 
 .modalDesc {
-  font-size: var(--text-body);
-  line-height: 1.7;
+  font-size: 13.5px;
+  line-height: 1.75;
   color: rgba(20, 32, 28, 0.7);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
+/* Variant selector */
+.variants {
+  margin-bottom: 20px;
+}
+
+.variantLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(20, 32, 28, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.variantValue {
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+
+.variantRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.variantBtn {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);              /* 40px pill per design.md §4.1 */
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: white;
+  cursor: pointer;
+  transition: all var(--duration-card) ease;
+  position: relative;
+}
+
+.variantBtn:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.variantActive {
+  background: var(--ink);
+  color: var(--ivory);
+  border-color: var(--ink);
+}
+
+.variantBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.variantSize {
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+.variantOos {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--rosewood);
+}
+
+/* Actions */
 .modalActions {
   display: flex;
   gap: 10px;
-  margin-top: auto;
+  margin-top: 16px;
 }
 
-/* Trust row inside modal */
+.modalActions .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Trust row — design.md §4.6 row 8 (also in cart drawer + chat widget per rule.md §5) */
 .modalTrust {
   display: flex;
-  gap: 16px;
-  padding-top: 16px;
-  margin-top: 16px;
+  gap: 20px;
+  padding-top: 20px;
+  margin-top: 20px;
   border-top: 1px solid var(--line);
-  font-size: 11px;
-  color: var(--gold-deep);
+  flex-wrap: wrap;
 }
 
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(20, 32, 28, 0.6);
+}
+
+.trustItem svg {
+  stroke: var(--gold-deep);
+}
+
+/* "Vedi dettagli completi" link */
+.viewFull {
+  display: inline-block;
+  margin-top: 16px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  text-decoration: none;
+  transition: color var(--duration-card) ease;
+}
+
+.viewFull:hover {
+  color: var(--ink);
+}
+
+/* Loading skeleton — design.md §1.7 ivory shimmer */
+.loading {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+}
+
+.skeletonImage {
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(110deg, var(--ivory-2) 30%, var(--ivory) 50%, var(--ivory-2) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+.skeletonInfo {
+  padding: 40px 38px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonLine {
+  height: 14px;
+  border-radius: 2px;
+  background: var(--ivory-2);
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Responsive — design.md §4.6 row 8 "stacks to 1-col under 700px" */
 @media (max-width: 700px) {
-  .modal { grid-template-columns: 1fr; max-height: 94vh; }
-  .imageCol { max-height: 300px; }
+  .modal {
+    grid-template-columns: 1fr;
+    max-height: 92vh;
+  }
+  .imageCol {
+    max-height: 300px;
+    aspect-ratio: auto;
+  }
+  .detailCol {
+    padding: 28px 24px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .backdrop { transition: none; }
+  .modalOpen { transform: none; }
+  .skeletonImage,
+  .skeletonLine { animation: none; }
 }

@@ -16,7 +16,7 @@
 
 .backLink:hover { color: var(--gold-deep); }
 
-.layout {
+.detail {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 56px;

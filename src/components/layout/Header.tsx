@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCart } from '@/contexts/CartContext';
 import styles from './Header.module.css';
 
 const ANNOUNCEMENTS = [
   'Artigianato italiano dal 1987 — Ogni pezzo racconta una storia',
   'Spedizione assicurata gratuita in tutta Italia',
-  'Certificato di autenticita incluso con ogni acquisto',
+  'Certificato di autenticità incluso con ogni acquisto',
 ];
 
 export default function Header() {
@@ -15,6 +16,9 @@ export default function Header() {
   const [fade, setFade] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // Wire cart context — needed for the cart icon onClick + item count badge
+  const { itemCount, openDrawer } = useCart();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -28,7 +32,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -66,13 +70,21 @@ export default function Header() {
               <Link href="/wishlist" className={styles.iconBtn} aria-label="Lista desideri">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               </Link>
-              <button className={styles.iconBtn} aria-label="Carrello">
+              {/* Cart icon — now wired to openDrawer (P0 fix #8) */}
+              <button
+                className={styles.iconBtn}
+                onClick={openDrawer}
+                aria-label={`Carrello${itemCount > 0 ? ` (${itemCount} articoli)` : ''}`}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                {itemCount > 0 && (
+                  <span className={styles.badge} aria-hidden="true">{itemCount}</span>
+                )}
               </button>
             </div>
           </nav>
 
-          <button className={styles.hamburger} onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+          <button className={styles.hamburger} onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu" aria-expanded={menuOpen}>
             <span className={`${styles.hamburgerLine} ${menuOpen ? styles.open : ''}`} />
             <span className={`${styles.hamburgerLine} ${menuOpen ? styles.open : ''}`} />
             <span className={`${styles.hamburgerLine} ${menuOpen ? styles.open : ''}`} />

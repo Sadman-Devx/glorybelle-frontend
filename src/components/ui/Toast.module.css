@@ -1,24 +1,41 @@
-/* Toast (design.md §1.4 — bottom-center, auto-dismiss 2.6s) */
+/* Toast (design.md §1.4 — bottom-center, auto-dismiss 2.6s, non-blocking) */
 .toast {
   position: fixed;
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  z-index: var(--z-toast);
+  z-index: var(--z-toast);                        /* 400 */
   background: var(--ink);
   color: white;
   padding: 14px 24px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-pill);              /* 40px pill */
+  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.02em;
   box-shadow: var(--shadow-widget);
   opacity: 0;
-  transition: all var(--duration-card) var(--ease-luxury);
+  transition: opacity var(--duration-card) var(--ease-luxury),
+              transform var(--duration-card) var(--ease-luxury);
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
+.toast svg {
+  color: var(--gold-light);
+  flex-shrink: 0;
+}
+
+/* Visible state — applied via the toastVisible class */
 .toastVisible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none; }
 }

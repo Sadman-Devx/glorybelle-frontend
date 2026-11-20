@@ -1,22 +1,116 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useCart } from '@/contexts/CartContext';
+import { orders, payments } from '@/lib/api';
+import { getStripe } from '@/lib/stripe';
 import styles from './page.module.css';
+
+interface CheckoutForm {
+  email: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+}
+
+const EMPTY_FORM: CheckoutForm = {
+  email: '', firstName: '', lastName: '',
+  address: '', city: '', province: '', postalCode: '', country: 'IT', phone: '',
+};
 
 export default function CheckoutPage() {
   const { cart } = useCart();
-  const [formData, setFormData] = useState({
-    email: '', firstName: '', lastName: '',
-    address: '', city: '', province: '', postalCode: '', country: 'IT', phone: '',
-  });
+  const router = useRouter();
+  const [formData, setFormData] = useState<CheckoutForm>(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const items = cart?.items || [];
+  const total = cart?.total || '0.00';
+
+  // Redirect to shop if cart is empty
+  useEffect(() => {
+    if (items.length === 0) {
+      router.push('/shop');
+    }
+  }, [items.length, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const items = cart?.items || [];
-  const total = cart?.total || '0.00';
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (items.length === 0) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      // Step 1: create Order on the backend (status=pending)
+      // Backend resolves prices from ProductVariant server-side — never trust client total
+      const order = await orders.create({
+        email: formData.email,
+        shipping_address: {
+          recipient_name: `${formData.firstName} ${formData.lastName}`,
+          street_address: formData.address,
+          city: formData.city,
+          province: formData.province,
+          postal_code: formData.postalCode,
+          country: formData.country,
+          phone: formData.phone,
+        },
+      });
+
+      // Step 2: create Stripe PaymentIntent
+      const intent = await payments.createIntent(order.id);
+
+      // Step 3: confirm payment with Stripe
+      const stripe = await getStripe();
+      if (!stripe) {
+        setError('Stripe non è configurato. Impossibile procedere al pagamento.');
+        setSubmitting(false);
+        return;
+      }
+
+      const { error: stripeError } = await stripe.confirmCardPayment(intent.client_secret, {
+        payment_method: {
+          card: (stripe.elements() as any)?.getElement('card') || undefined,
+          billing_details: {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            address: {
+              line1: formData.address,
+              city: formData.city,
+              state: formData.province,
+              postal_code: formData.postalCode,
+              country: formData.country,
+            },
+          },
+        },
+      });
+
+      if (stripeError) {
+        setError(stripeError.message || 'Errore nel pagamento');
+        setSubmitting(false);
+        return;
+      }
+
+      // Step 4: redirect to confirmation
+      // The backend webhook (not this redirect) is the source of truth for payment success
+      router.push(`/conferma?order=${order.order_number}`);
+    } catch (err: any) {
+      setError(err?.message || 'Errore durante il checkout. Riprova.');
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="section">
@@ -24,40 +118,70 @@ export default function CheckoutPage() {
         <div className={styles.formSection}>
           <h1 className={styles.title}>Checkout</h1>
 
-          <div className={styles.formGroup}>
-            <h3 className={styles.sectionTitle}>Contatto</h3>
-            <input className={styles.input} name="email" type="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
-          </div>
+          {error && (
+            <div className={styles.errorBanner} role="alert">
+              {error}
+            </div>
+          )}
 
-          <div className={styles.formGroup}>
-            <h3 className={styles.sectionTitle}>Spedizione</h3>
-            <div className={styles.row}>
-              <input className={styles.input} name="firstName" placeholder="Nome" value={formData.firstName} onChange={handleChange} required />
-              <input className={styles.input} name="lastName" placeholder="Cognome" value={formData.lastName} onChange={handleChange} required />
+          <form onSubmit={handleSubmit} className={styles.form}>
+            {/* Contact */}
+            <div className={styles.formGroup}>
+              <h3 className={styles.sectionTitle}>Contatto</h3>
+              <input
+                className={styles.input}
+                name="email"
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
             </div>
-            <input className={styles.input} name="address" placeholder="Indirizzo" value={formData.address} onChange={handleChange} required />
-            <div className={styles.row}>
-              <input className={styles.input} name="city" placeholder="Citta" value={formData.city} onChange={handleChange} required />
-              <input className={styles.input} name="province" placeholder="Provincia" value={formData.province} onChange={handleChange} />
-            </div>
-            <div className={styles.row}>
-              <input className={styles.input} name="postalCode" placeholder="CAP" value={formData.postalCode} onChange={handleChange} required />
-              <input className={styles.input} name="phone" placeholder="Telefono" value={formData.phone} onChange={handleChange} />
-            </div>
-          </div>
 
-          <div className={styles.formGroup}>
-            <h3 className={styles.sectionTitle}>Pagamento</h3>
-            <div className={styles.stripeBox}>
-              <p className={styles.stripePlaceholder}>
-                Stripe Elements verranno integrati qui quando la chiave API sara configurata.
-              </p>
+            {/* Shipping address */}
+            <div className={styles.formGroup}>
+              <h3 className={styles.sectionTitle}>Spedizione</h3>
+              <div className={styles.row}>
+                <input className={styles.input} name="firstName" placeholder="Nome" value={formData.firstName} onChange={handleChange} required />
+                <input className={styles.input} name="lastName" placeholder="Cognome" value={formData.lastName} onChange={handleChange} required />
+              </div>
+              <input className={styles.input} name="address" placeholder="Indirizzo" value={formData.address} onChange={handleChange} required />
+              <div className={styles.row}>
+                <input className={styles.input} name="city" placeholder="Città" value={formData.city} onChange={handleChange} required />
+                <input className={styles.input} name="province" placeholder="Provincia" value={formData.province} onChange={handleChange} maxLength={2} />
+              </div>
+              <div className={styles.row}>
+                <input className={styles.input} name="postalCode" placeholder="CAP" value={formData.postalCode} onChange={handleChange} required maxLength={5} />
+                <input className={styles.input} name="phone" placeholder="Telefono" value={formData.phone} onChange={handleChange} type="tel" />
+              </div>
             </div>
-          </div>
 
-          <button className="btn btn-primary" style={{ width: '100%', marginTop: '16px' }}>
-            Completa Ordine — EUR {parseFloat(total).toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-          </button>
+            {/* Payment — Stripe Elements placeholder.
+                Replace with actual <CardElement /> when Stripe Elements UI is wired. */}
+            <div className={styles.formGroup}>
+              <h3 className={styles.sectionTitle}>Pagamento</h3>
+              <div className={styles.stripeBox}>
+                <p className={styles.stripeNote}>
+                  Pagamento sicuro tramite Stripe. I dati della tua carta non vengono mai
+                  archiviati sui nostri server.
+                </p>
+                {/* TODO: mount <CardElement /> from @stripe/react-stripe-js here.
+                    For now we rely on stripe.confirmCardPayment with a payment_method
+                    that needs to be created from the card form. */}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className={`btn btn-primary ${styles.submitBtn}`}
+              disabled={submitting || items.length === 0}
+            >
+              {submitting
+                ? 'Elaborazione…'
+                : `Completa Ordine — EUR ${parseFloat(total).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
+            </button>
+          </form>
         </div>
 
         {/* Order summary sidebar */}
@@ -65,12 +189,26 @@ export default function CheckoutPage() {
           <h3 className={styles.sectionTitle}>Riepilogo ordine</h3>
           {items.map((item) => (
             <div key={item.id} className={styles.summaryItem}>
-              <div className={styles.summaryThumb} />
+              <div className={styles.summaryThumb}>
+                <Image
+                  src={item.variant.image_url || `/products/${item.variant.product_slug}.jpg`}
+                  alt={item.variant.product_name}
+                  fill
+                  sizes="60px"
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
               <div className={styles.summaryInfo}>
                 <span className={styles.summaryName}>{item.variant.product_name}</span>
-                <span className={styles.summaryVariant}>{item.variant.metal_display} x{item.quantity}</span>
+                <span className={styles.summaryVariant}>
+                  {item.variant.metal_display}
+                  {item.variant.size ? ` · ${item.variant.size}` : ''}
+                  {' '}×{item.quantity}
+                </span>
               </div>
-              <span className={styles.summaryPrice}>EUR {parseFloat(item.line_total).toLocaleString('it-IT', { minimumFractionDigits: 2 })}</span>
+              <span className={styles.summaryPrice}>
+                EUR {parseFloat(item.line_total).toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+              </span>
             </div>
           ))}
           <div className={styles.divider} />
@@ -79,8 +217,8 @@ export default function CheckoutPage() {
             <span>EUR {parseFloat(total).toLocaleString('it-IT', { minimumFractionDigits: 2 })}</span>
           </div>
           <div className={styles.summaryTrust}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Transazione sicura e crittografata
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Transazione sicura e crittografata</span>
           </div>
         </div>
       </div>

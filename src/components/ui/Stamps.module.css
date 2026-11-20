@@ -1,0 +1,85 @@
+/* =============================================================================
+   Stamps (design.md §4.6 row 7 — "How it works" step indicator)
+   - 92x92 circle, dashed border (the only dashed-border element on the site)
+   - default: white fill, 1.5px dashed line-strong border
+   - hover/active: border becomes solid gold, fill becomes emerald-deep,
+     icon turns gold-light and scales 1.08x
+   ============================================================================= */
+
+.stamps {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* 92x92 circle, 1.5px dashed border per design.md §4.6 row 7 */
+.circle {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  transition: all var(--duration-card) ease;
+}
+
+.circle svg {
+  width: 34px;
+  height: 34px;
+  stroke: var(--emerald);
+  stroke-width: 1.3;
+  transition: transform var(--duration-image) ease,
+              stroke var(--duration-card) ease;
+}
+
+/* Hover & active states — design.md §4.6 row 7 */
+.stamp:hover .circle,
+.stamp.active .circle {
+  border-style: solid;
+  border-color: var(--gold);
+  background: var(--emerald-deep);
+  box-shadow: var(--shadow);
+}
+
+.stamp:hover .circle svg,
+.stamp.active .circle svg {
+  stroke: var(--gold-light);
+  transform: scale(1.08);                        /* design.md §4.6 row 7: "icon scales 1.08x" */
+}
+
+/* Label */
+.label {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  transition: color var(--duration-card) ease;
+}
+
+.stamp.active .label {
+  color: var(--gold-deep);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .circle,
+  .circle svg,
+  .label { transition: none; }
+  .stamp:hover .circle svg,
+  .stamp.active .circle svg { transform: none; }
+}

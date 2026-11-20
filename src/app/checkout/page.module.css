@@ -1,14 +1,17 @@
-/* Checkout */
+/* =============================================================================
+   Checkout page — design.md §4.5 (2-col layout: form left, summary right)
+   ============================================================================= */
+
 .checkout {
-  min-height: 60vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 48px;
+  align-items: start;
+  padding: 40px 0 80px;
 }
 
-.inner {
-  max-width: 480px;
+.formSection {
+  min-width: 0;                                    /* prevent overflow on long input */
 }
 
 .title {
@@ -16,11 +19,215 @@
   font-size: var(--text-h2);
   font-weight: 500;
   color: var(--ink);
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
-.desc {
+/* Error banner */
+.errorBanner {
+  background: rgba(122, 50, 38, 0.08);
+  border: 1px solid var(--rosewood);
+  border-radius: var(--radius-card);
+  padding: 12px 16px;
+  color: var(--rosewood);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-eyebrow);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin: 0 0 4px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-body);
   font-size: 14px;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);              /* 3px */
+  transition: border-color var(--duration-card) ease;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--emerald);
+}
+
+.input::placeholder {
+  color: rgba(20, 32, 28, 0.4);
+}
+
+/* Stripe Elements box */
+.stripeBox {
+  padding: 20px;
+  background: var(--ivory-2);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+}
+
+.stripeNote {
+  font-size: 12px;
   color: rgba(20, 32, 28, 0.6);
-  line-height: 1.7;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Submit button */
+.submitBtn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   Order summary sidebar — sticky on desktop
+   ============================================================================= */
+.summary {
+  position: sticky;
+  top: 100px;
+  background: var(--ivory);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-collection);        /* 14px — editorial card */
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summaryItem {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.summaryThumb {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--ivory-2);
+  flex-shrink: 0;
+}
+
+.summaryInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.summaryName {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summaryVariant {
+  font-size: 11px;
+  color: rgba(20, 32, 28, 0.5);
+}
+
+.summaryPrice {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 4px 0;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.summaryTrust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold-deep);
+}
+
+.summaryTrust svg {
+  stroke: var(--gold-deep);
+}
+
+/* =============================================================================
+   Responsive
+   ============================================================================= */
+@media (max-width: 1023px) {
+  .checkout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .summary {
+    position: static;
+    order: -1;                                     /* show summary first on tablet/mobile */
+  }
+}
+
+@media (max-width: 575px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .summary {
+    padding: 20px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .submitBtn { transition: none; }
 }

@@ -70,6 +70,7 @@
   --z-modal: 300;
   --z-toast: 400;
   --z-chat: 150;
+  --text-muted: rgba(20, 32, 28, 0.55);
 }
 
 /* Reduced motion (design.md §4.3 — non-negotiable) */
