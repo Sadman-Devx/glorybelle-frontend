@@ -185,3 +185,9 @@ export interface PaymentIntent {
   client_secret: string;
   payment_intent_id: string;
 }
+
+export interface FirstPurchaseDiscount {
+  eligible: boolean;
+  percent: string;
+  message: string;
+}

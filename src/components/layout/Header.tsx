@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
+import MegaMenu from '@/components/nav/MegaMenu';
+import MobileNav from '@/components/nav/MobileNav';
 import styles from './Header.module.css';
 
 const ANNOUNCEMENTS = [
@@ -11,13 +13,22 @@ const ANNOUNCEMENTS = [
   'Certificato di autenticità incluso con ogni acquisto',
 ];
 
+// Categories with mega menu support (P1 fix #19)
+const MEGA_CATEGORIES = [
+  { slug: 'anelli', label: 'Anelli' },
+  { slug: 'collane', label: 'Collane' },
+  { slug: 'orecchini', label: 'Orecchini' },
+  { slug: 'bracciali', label: 'Bracciali' },
+];
+
 export default function Header() {
   const [announcementIndex, setAnnouncementIndex] = useState(0);
   const [fade, setFade] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);          // MobileNav
   const [scrolled, setScrolled] = useState(false);
+  const [megaOpen, setMegaOpen] = useState<string | null>(null);  // MegaMenu slug
+  const [megaCloseTimer, setMegaCloseTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Wire cart context — needed for the cart icon onClick + item count badge
   const { itemCount, openDrawer } = useCart();
 
   useEffect(() => {
@@ -37,6 +48,27 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Mega menu hover behavior — open on enter, close with delay on leave
+  // (delay prevents flicker when moving mouse between trigger and menu)
+  const openMega = (slug: string) => {
+    if (megaCloseTimer) {
+      clearTimeout(megaCloseTimer);
+      setMegaCloseTimer(null);
+    }
+    setMegaOpen(slug);
+  };
+
+  const scheduleCloseMega = () => {
+    if (megaCloseTimer) clearTimeout(megaCloseTimer);
+    const timer = setTimeout(() => setMegaOpen(null), 200);
+    setMegaCloseTimer(timer);
+  };
+
+  const closeMega = () => {
+    if (megaCloseTimer) clearTimeout(megaCloseTimer);
+    setMegaOpen(null);
+  };
+
   return (
     <>
       <div className={styles.announcement}>
@@ -45,12 +77,24 @@ export default function Header() {
         </span>
       </div>
 
-      <header className={`${styles.header} ${scrolled ? styles.scrolled : ''}`}>
+      <header
+        className={`${styles.header} ${scrolled ? styles.scrolled : ''}`}
+        onMouseLeave={scheduleCloseMega}
+      >
         <div className={`container ${styles.headerInner}`}>
           <nav className={styles.navLeft}>
-            <Link href="/shop" className={styles.navLink}>Collezione</Link>
-            <Link href="/shop?category=anelli" className={styles.navLink}>Anelli</Link>
-            <Link href="/shop?category=collane" className={styles.navLink}>Collane</Link>
+            <Link href="/prodotti" className={styles.navLink}>Collezione</Link>
+            {MEGA_CATEGORIES.slice(0, 2).map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/prodotti?category=${cat.slug}`}
+                className={`${styles.navLink} ${styles.megaTrigger}`}
+                onMouseEnter={() => openMega(cat.slug)}
+                onFocus={() => openMega(cat.slug)}
+              >
+                {cat.label}
+              </Link>
+            ))}
           </nav>
 
           <Link href="/" className={styles.logo}>
@@ -58,8 +102,17 @@ export default function Header() {
           </Link>
 
           <nav className={styles.navRight}>
-            <Link href="/shop?category=orecchini" className={styles.navLink}>Orecchini</Link>
-            <Link href="/shop?category=bracciali" className={styles.navLink}>Bracciali</Link>
+            {MEGA_CATEGORIES.slice(2).map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/prodotti?category=${cat.slug}`}
+                className={`${styles.navLink} ${styles.megaTrigger}`}
+                onMouseEnter={() => openMega(cat.slug)}
+                onFocus={() => openMega(cat.slug)}
+              >
+                {cat.label}
+              </Link>
+            ))}
             <div className={styles.icons}>
               <button className={styles.iconBtn} aria-label="Cerca">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -70,7 +123,6 @@ export default function Header() {
               <Link href="/wishlist" className={styles.iconBtn} aria-label="Lista desideri">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               </Link>
-              {/* Cart icon — now wired to openDrawer (P0 fix #8) */}
               <button
                 className={styles.iconBtn}
                 onClick={openDrawer}
@@ -84,23 +136,33 @@ export default function Header() {
             </div>
           </nav>
 
-          <button className={styles.hamburger} onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu" aria-expanded={menuOpen}>
-            <span className={`${styles.hamburgerLine} ${menuOpen ? styles.open : ''}`} />
-            <span className={`${styles.hamburgerLine} ${menuOpen ? styles.open : ''}`} />
-            <span className={`${styles.hamburgerLine} ${menuOpen ? styles.open : ''}`} />
+          {/* Hamburger — below 1024px (tablets + mobile, per design.md §1.3.1) */}
+          <button
+            className={styles.hamburger}
+            onClick={() => setMenuOpen(true)}
+            aria-label="Apri menu"
+            aria-expanded={menuOpen}
+          >
+            <span className={styles.hamburgerLine} />
+            <span className={styles.hamburgerLine} />
+            <span className={styles.hamburgerLine} />
           </button>
         </div>
 
-        {menuOpen && (
-          <div className={styles.mobileMenu}>
-            <Link href="/shop" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Collezione</Link>
-            <Link href="/shop?category=anelli" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Anelli</Link>
-            <Link href="/shop?category=collane" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Collane</Link>
-            <Link href="/shop?category=orecchini" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Orecchini</Link>
-            <Link href="/shop?category=bracciali" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Bracciali</Link>
-          </div>
-        )}
+        {/* Mega menu — one at a time, rendered for the active category */}
+        {MEGA_CATEGORIES.map((cat) => (
+          <MegaMenu
+            key={cat.slug}
+            categorySlug={cat.slug}
+            categoryLabel={cat.label}
+            isOpen={megaOpen === cat.slug}
+            onClose={closeMega}
+          />
+        ))}
       </header>
+
+      {/* Mobile nav drawer — below 1024px */}
+      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
     </>
   );
 }

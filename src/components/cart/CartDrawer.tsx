@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 import styles from './CartDrawer.module.css';
+import FirstPurchaseBanner from './FirstPurchaseBanner';
 
 export default function CartDrawer() {
   const { cart, drawerOpen, closeDrawer, updateItem, removeItem, loading } = useCart();
@@ -64,11 +65,15 @@ export default function CartDrawer() {
           </div>
         ) : (
           <>
+            {/* First Purchase Banner — shown above cart items.
+                Quiet, editorial tone per design.md (NOT a popup).
+                Calls /api/accounts/first-purchase-discount/ to check eligibility. */}
+            <FirstPurchaseBanner />
+
             <div className={styles.items}>
               {items.map((item) => (
                 <div key={item.id} className={styles.item}>
-                  {/* Product thumbnail — was <div className={styles.itemThumb} /> which didn't exist in CSS.
-                      Now uses .itemImage (the actual class) and renders the real image. */}
+                  {/* Product thumbnail */}
                   <div className={styles.itemImage}>
                     <Image
                       src={item.variant.image_url || `/products/${item.variant.product_slug}.jpg`}

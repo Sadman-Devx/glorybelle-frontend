@@ -1,6 +1,6 @@
 import type {
   PaginatedResponse, Product, ProductListItem, Category, Cart, Order,
-  User, Address, AuthTokens, WishlistItem, Review, PaymentIntent,
+  User, Address, AuthTokens, WishlistItem, Review, PaymentIntent, FirstPurchaseDiscount,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -98,6 +98,8 @@ export const auth = {
   addresses: () => apiFetch<Address[]>('/api/accounts/addresses/'),
   createAddress: (data: Omit<Address, 'id'>) =>
     apiFetch<Address>('/api/accounts/addresses/', { method: 'POST', body: JSON.stringify(data) }),
+  firstPurchaseDiscount: () =>
+    apiFetch<FirstPurchaseDiscount>('/api/accounts/first-purchase-discount/'),
 };
 
 export const wishlist = {

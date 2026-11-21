@@ -1,0 +1,245 @@
+/* =============================================================================
+   MegaMenu (design.md §1.2 + demo HTML — mega menu with category/metal/price
+   quick filters plus a category promo image)
+
+   Behavior:
+   - Opens below the header on hover of a category link (desktop only)
+   - Closes on click outside, ESC key, or selecting a link
+   - 4 columns: search | by metal | by price | promo image
+   - Below 1024px: hidden (mobile/tablet uses MobileNav drawer instead)
+   ============================================================================= */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 32, 28, 0.18);
+  z-index: 99;
+  opacity: 0;
+  animation: fadeIn 0.2s ease forwards;
+  cursor: default;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 24px 40px -20px rgba(20, 32, 28, 0.25);
+  z-index: 100;
+  animation: slideDown 0.25s var(--ease-luxury);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 36px 32px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 1.4fr;
+  gap: 36px;
+}
+
+.col {}
+
+.colTitle {
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin: 0 0 16px;
+}
+
+/* Search input */
+.searchForm {
+  display: flex;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 9px 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: rgba(20, 32, 28, 0.4);
+}
+
+.searchBtn {
+  width: 36px;
+  background: var(--emerald-deep);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--duration-card) ease;
+}
+
+.searchBtn:hover {
+  background: var(--ink);
+}
+
+.seeAll {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gold-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Link list — metals + prices */
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 4px 0;
+  transition: all var(--duration-card) ease;
+}
+
+.link:hover {
+  color: var(--gold-deep);
+  transform: translateX(4px);
+}
+
+/* Metal color swatch */
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  flex-shrink: 0;
+}
+
+.swatch[data-metal="gold"] {
+  background: linear-gradient(135deg, #E4C583, #B9924F);
+}
+.swatch[data-metal="rose"] {
+  background: linear-gradient(135deg, #E8B4A8, #C9948A);
+}
+.swatch[data-metal="silver"] {
+  background: linear-gradient(135deg, #F2F2F2, #C9CFCF);
+}
+
+/* Promo card — right column */
+.promoCol {
+  display: flex;
+}
+
+.promoCard {
+  position: relative;
+  width: 100%;
+  min-height: 220px;
+  border-radius: var(--radius-collection);  /* 14px */
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: flex-end;
+  transition: transform var(--duration-card) var(--ease-luxury);
+}
+
+.promoCard:hover {
+  transform: scale(1.02);
+}
+
+.promoOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(8, 20, 15, 0.85) 0%,
+    rgba(8, 20, 15, 0.35) 50%,
+    rgba(8, 20, 15, 0.1) 100%
+  );
+}
+
+.promoText {
+  position: relative;
+  padding: 20px 22px;
+  z-index: 1;
+}
+
+.promoEyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 6px;
+}
+
+.promoTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0 0 10px;
+  line-height: 1.15;
+}
+
+.promoCta {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Mobile — mega menu hidden, MobileNav drawer takes over */
+@media (max-width: 1023px) {
+  .menu, .backdrop { display: none; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .menu,
+  .backdrop { animation: none; }
+  .promoCard,
+  .link { transition: none; }
+}
