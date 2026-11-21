@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { catalog } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import type { Product, ProductVariant } from '@/lib/types';
+import { lockBodyScroll } from '@/lib/scrollLock';
 import styles from './QuickViewModal.module.css';
 
 interface QuickViewModalProps {
@@ -40,10 +41,10 @@ export default function QuickViewModal({ slug, onClose }: QuickViewModalProps) {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+    const unlock = lockBodyScroll();
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      unlock();
     };
   }, [slug, onClose]);
 
@@ -176,7 +177,7 @@ export default function QuickViewModal({ slug, onClose }: QuickViewModalProps) {
                 </div>
               </div>
 
-              <Link href={`/shop/${product.slug}`} className={styles.viewFull} onClick={onClose}>
+              <Link href={`/prodotti/${product.slug}`} className={styles.viewFull} onClick={onClose}>
                 Vedi dettagli completi →
               </Link>
             </div>

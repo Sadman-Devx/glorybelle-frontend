@@ -29,7 +29,7 @@ function ShopContent() {
     } else {
       params.delete(key);
     }
-    router.push('/shop?' + params.toString());
+    router.push('/prodotti?' + params.toString());
   }, [searchParams, router]);
 
   useEffect(() => {
@@ -141,7 +141,7 @@ function ShopContent() {
 
 export default function ShopPage() {
   return (
-    <div className="section">
+    <div className={styles.page}>
       <Suspense fallback={<div className="container"><p>Caricamento…</p></div>}>
         <ShopContent />
       </Suspense>

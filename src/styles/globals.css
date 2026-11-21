@@ -45,6 +45,8 @@
   --container-max: 1240px;
   --container-pad: 32px;
   --container-pad-mobile: 18px;
+  --announcement-h: 34px;           /* announcement bar — keep in sync with Header */
+  --header-h: 65px;                 /* sticky header: 64px bar + 1px border */
   --grid-gap: 26px;
   --grid-gap-lg: 44px;
 

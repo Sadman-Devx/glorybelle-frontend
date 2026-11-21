@@ -65,7 +65,7 @@ function ConfirmContent() {
             o contattaci se il problema persiste.
           </p>
           <div className={styles.ctas}>
-            <Link href="/shop" className="btn btn-primary">Continua lo shopping</Link>
+            <Link href="/prodotti" className="btn btn-primary">Continua lo shopping</Link>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@ function ConfirmContent() {
 
         <div className={styles.ctas}>
           <Link href="/account" className="btn btn-secondary">I miei ordini</Link>
-          <Link href="/shop" className="btn btn-primary">Continua lo shopping</Link>
+          <Link href="/prodotti" className="btn btn-primary">Continua lo shopping</Link>
         </div>
       </div>
     </div>

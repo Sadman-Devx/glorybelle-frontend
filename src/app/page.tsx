@@ -13,8 +13,10 @@ import styles from './page.module.css';
 export default function HomePage() {
   return (
     <>
-      <HeroSticky />
-      <HeroStats />
+      {/* Stats live inside the hero wrapper so they rise over the pinned background */}
+      <HeroSticky>
+        <HeroStats />
+      </HeroSticky>
       <TrustStrip />
 
       <section className={`section ${styles.collections}`}>
@@ -105,7 +107,7 @@ export default function HomePage() {
               Scopri la nostra selezione completa di anelli, collane, orecchini e
               bracciali artigianali italiani.
             </p>
-            <Link href="/shop" className="btn btn-primary">Vai allo Shop</Link>
+            <Link href="/prodotti" className="btn btn-primary">Vai allo Shop</Link>
           </RevealOnScroll>
         </div>
       </section>

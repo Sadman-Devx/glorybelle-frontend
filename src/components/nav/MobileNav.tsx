@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { lockBodyScroll } from '@/lib/scrollLock';
 import styles from './MobileNav.module.css';
 
 interface MobileNavProps {
@@ -40,10 +41,10 @@ export default function MobileNav({ open, onClose }: MobileNavProps) {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+    const unlock = lockBodyScroll();
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      unlock();
     };
   }, [open, onClose]);
 

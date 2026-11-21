@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import styles from './HeroSticky.module.css';
 
@@ -10,10 +10,22 @@ const HERO_IMAGES = [
   '/hero/hero-3.jpg',
 ];
 
-export default function HeroSticky() {
+// Scroll distance (px) after which the "Scorri" hint fades out
+const HINT_HIDE_AFTER = 100;
+
+interface HeroStickyProps {
+  /**
+   * Content that must rise OVER the pinned background (the stats block).
+   * It has to live inside the hero wrapper: `position: sticky` only pins an
+   * element for as long as its parent is on screen, so the background and the
+   * section that covers it need the same parent.
+   */
+  children?: ReactNode;
+}
+
+export default function HeroSticky({ children }: HeroStickyProps) {
   const [currentImage, setCurrentImage] = useState(0);
-  const [scrollY, setScrollY] = useState(0);
-  const heroRef = useRef<HTMLElement>(null);
+  const [hintVisible, setHintVisible] = useState(true);
 
   // 3-image crossfade slideshow
   useEffect(() => {
@@ -23,73 +35,55 @@ export default function HeroSticky() {
     return () => clearInterval(interval);
   }, []);
 
-  // Parallax drift — design.md §4.3 "Parallax drift"
-  // Background drifts slower than scroll, creating depth without being jarring.
-  // Maximum ~15-20% translate per the design system.
+  // Scroll hint — state only changes when the threshold is crossed,
+  // so scrolling does not re-render the hero on every frame.
   useEffect(() => {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) return;
-
-    const onScroll = () => {
-      if (heroRef.current) {
-        const rect = heroRef.current.getBoundingClientRect();
-        // Only update while hero is in viewport
-        if (rect.bottom > 0 && rect.top < window.innerHeight) {
-          setScrollY(window.scrollY);
-        }
-      }
-    };
+    const onScroll = () => setHintVisible(window.scrollY < HINT_HIDE_AFTER);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Parallax transform — moves bg at 0.3x scroll speed, max 18% drift
-  const parallaxOffset = Math.min(scrollY * 0.3, 180);
-
   return (
-    <section ref={heroRef} className={styles.hero}>
+    <section className={styles.hero}>
       {/* Pinned background — design.md §1.1: "background stays fixed while hero
-          content and stats rise over it". Uses position: sticky so the hero
-          stays pinned at the top of the viewport while the next section
-          scrolls up over it. */}
-      <div
-        className={styles.bgWrap}
-        style={{ transform: `translate3d(0, ${parallaxOffset}px, 0)` }}
-      >
+          content and stats rise over it". ONLY this layer is sticky. */}
+      <div className={styles.bg} aria-hidden="true">
         {HERO_IMAGES.map((src, i) => (
           <div
             key={src}
             className={`${styles.bgImage} ${i === currentImage ? styles.active : ''}`}
             style={{ backgroundImage: `url(${src})` }}
-            role="img"
-            aria-label="Gioielleria artigianale italiana"
           />
         ))}
         <div className={styles.overlay} />
       </div>
 
-      <div className={`container ${styles.content}`}>
-        <span className={`eyebrow eyebrow-line ${styles.eyebrow}`}>
-          Gioielleria Artigianale
-        </span>
-        <h1 className={`heading-display ${styles.title}`}>
-          L&apos;Arte della<br />Bellezza Italiana
-        </h1>
-        <p className={styles.subtitle}>
-          Ogni pezzo racconta una storia di passione, precisione e tradizione
-          artigianale tramandata da generazioni.
-        </p>
-        <div className={styles.ctas}>
-          <Link href="/prodotti" className="btn btn-gold">Scopri la Collezione</Link>
-          <Link href="/about" className={`btn btn-secondary ${styles.secondaryBtn}`}>
-            La Nostra Storia
-          </Link>
+      {/* Hero content — normal flow, scrolls away with the page.
+          Pulled up over the background with a negative margin. */}
+      <div className={styles.stage}>
+        <div className={`container ${styles.content}`}>
+          <span className={`eyebrow eyebrow-line ${styles.eyebrow}`}>
+            Gioielleria Artigianale
+          </span>
+          <h1 className={`heading-display ${styles.title}`}>
+            L&apos;Arte della<br />Bellezza Italiana
+          </h1>
+          <p className={styles.subtitle}>
+            Ogni pezzo racconta una storia di passione, precisione e tradizione
+            artigianale tramandata da generazioni.
+          </p>
+          <div className={styles.ctas}>
+            <Link href="/prodotti" className="btn btn-gold">Scopri la Collezione</Link>
+            <Link href="/about" className={`btn btn-secondary ${styles.secondaryBtn}`}>
+              La Nostra Storia
+            </Link>
+          </div>
         </div>
 
-        {/* Scroll indicator — fades out as user scrolls, signals "scroll down" */}
+        {/* Scroll indicator — anchored to the bottom of the hero */}
         <div
-          className={styles.scrollHint}
-          style={{ opacity: scrollY < 100 ? 1 : 0 }}
+          className={`${styles.scrollHint} ${hintVisible ? '' : styles.scrollHintHidden}`}
           aria-hidden="true"
         >
           <span>Scorri</span>
@@ -98,6 +92,9 @@ export default function HeroSticky() {
           </svg>
         </div>
       </div>
+
+      {/* Rises over the pinned background (opaque, above it in z-order) */}
+      {children && <div className={styles.rise}>{children}</div>}
     </section>
   );
 }

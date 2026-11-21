@@ -1,36 +1,59 @@
 /* =============================================================================
    Hero — design.md §1.1 "Pinned/sticky scroll-reveal"
-   Background stays fixed while hero content and stats rise over it.
-   Uses position: sticky (not fixed) so the next section scrolls over the hero.
+   Background stays pinned while hero content scrolls away normally and the
+   stats block rises over it.
+
+   Structure (all children of .hero):
+     .bg     position: sticky   → the ONLY pinned layer
+     .stage  normal flow        → heading / CTAs, pulled over .bg (negative margin)
+     .rise   normal flow, z 2   → stats; opaque, covers .bg as it scrolls up
+
+   Rules that keep this working:
+     - never put overflow: hidden/auto on .hero or any ancestor (breaks sticky)
+     - .bg and .stage share the same height (--hero-h)
 
    design.md §1.2 navigation flow:
      "Hero → Trust strip → Featured carousel → Product grid → Craft story →
       Testimonials → Instagram grid → Footer — a storytelling sequence"
-   The pinned hero creates the brand-defining "scroll-reveal" effect.
 
    design.md §4.3 motion:
      - Hero image crossfade: 1.1s ease
-     - Parallax drift: ~15-20% translate, scroll-linked
    ============================================================================= */
 
 .hero {
-  position: sticky;                /* THE fix — pins hero at top of viewport */
-  top: 0;
-  width: 100%;
-  height: 100vh;
-  min-height: 600px;
+  /* Fill the first screen exactly: viewport minus announcement bar and header
+     (vars defined in globals.css). */
+  --hero-h: max(520px, calc(100svh - var(--announcement-h) - var(--header-h)));
+
+  position: relative;
+  isolation: isolate;              /* keep hero z-indexes local; header stays on top */
+}
+
+/* Pinned background. Sticks BELOW the sticky header (top = header height) so
+   nothing is hidden behind it. */
+.bg {
+  position: sticky;
+  top: var(--header-h);
+  height: var(--hero-h);
+  overflow: hidden;                /* fine here: .bg is the sticky element, not its ancestor */
+  z-index: 0;
+}
+
+/* Hero content layer — sits on top of .bg, but scrolls with the page */
+.stage {
+  position: relative;
+  z-index: 1;
+  height: var(--hero-h);
+  margin-top: calc(-1 * var(--hero-h));
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  z-index: 0;                      /* next section scrolls OVER the hero */
 }
 
-.bgWrap {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  will-change: transform;          /* perf hint for parallax */
+/* Stats (or any block) that rises over the pinned background */
+.rise {
+  position: relative;
+  z-index: 2;
 }
 
 .bgImage {
@@ -58,8 +81,6 @@
 }
 
 .content {
-  position: relative;
-  z-index: 1;
   text-align: center;
   color: white;
   max-width: 680px;
@@ -135,6 +156,8 @@
   z-index: 2;
 }
 
+.scrollHintHidden { opacity: 0; }
+
 .scrollHint svg {
   animation: bounce 2s ease-in-out infinite;
 }
@@ -146,7 +169,7 @@
 
 /* Mobile */
 @media (max-width: 767px) {
-  .hero { min-height: 500px; height: 85vh; }
+  .hero { --hero-h: max(500px, 85svh); }
   .subtitle { font-size: 14px; }
   .ctas { flex-direction: column; align-items: center; }
   .scrollHint { display: none; }
@@ -155,7 +178,6 @@
 /* Reduced motion — design.md §4.3 (non-negotiable) */
 @media (prefers-reduced-motion: reduce) {
   .bgImage { transition: none; }
-  .bgWrap { transform: none !important; }
   .scrollHint svg { animation: none; }
   .scrollHint { transition: none; }
 }

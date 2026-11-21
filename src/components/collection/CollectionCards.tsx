@@ -11,7 +11,7 @@ export default function CollectionCards() {
   return (
     <div className={styles.grid}>
       {COLLECTIONS.map((col) => (
-        <Link key={col.slug} href={`/shop?category=${col.slug}`} className={styles.card}>
+        <Link key={col.slug} href={`/prodotti?category=${col.slug}`} className={styles.card}>
           <div className={styles.bg} style={{ backgroundImage: `url(${col.image})` }} />
           <div className={styles.overlay} />
           <div className={styles.content}>

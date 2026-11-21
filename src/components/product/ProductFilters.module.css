@@ -15,8 +15,17 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  position: sticky;
-  top: 100px;                                     /* below sticky header */
+}
+
+/* Sticky only on tall screens, where the whole sidebar fits below the header.
+   On shorter screens (e.g. laptops at 125% scaling) it scrolls with the page —
+   a sticky sidebar taller than the viewport would be cut off, and giving it its
+   own scrollbar looks unpolished. */
+@media (min-width: 1024px) and (min-height: 860px) {
+  .sidebar {
+    position: sticky;
+    top: 100px;                                   /* below sticky header */
+  }
 }
 
 /* Filter group — accordion section equivalent on mobile */
@@ -178,7 +187,8 @@
 .sheet {
   width: 100%;
   max-width: 640px;
-  max-height: 85vh;                               /* design.md §1.3.1: 80-85% viewport */
+  max-height: 85vh;
+  max-height: 85dvh;                               /* design.md §1.3.1: 80-85% viewport */
   background: var(--ivory);
   border-radius: 16px 16px 0 0;
   display: flex;

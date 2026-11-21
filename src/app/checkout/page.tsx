@@ -38,7 +38,7 @@ export default function CheckoutPage() {
   // Redirect to shop if cart is empty
   useEffect(() => {
     if (items.length === 0) {
-      router.push('/shop');
+      router.push('/prodotti');
     }
   }, [items.length, router]);
 
@@ -105,7 +105,7 @@ export default function CheckoutPage() {
 
       // Step 4: redirect to confirmation
       // The backend webhook (not this redirect) is the source of truth for payment success
-      router.push(`/conferma?order=${order.order_number}`);
+      router.push(`/checkout/conferma?order=${order.order_number}`);
     } catch (err: any) {
       setError(err?.message || 'Errore durante il checkout. Riprova.');
       setSubmitting(false);

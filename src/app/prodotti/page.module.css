@@ -1,0 +1,114 @@
+/* =============================================================================
+   Shop page (/prodotti) — class names match app/prodotti/page.tsx
+
+   Layout: [ sidebar 240px | product grid ] on desktop.
+   IMPORTANT: .layout must be a grid with `align-items: start`.
+   The filter sidebar is `position: sticky`; if it were stretched to the full
+   row height (grid default) it would have no room to stick, and without a grid
+   at all it overlaps the product cards while scrolling.
+   ============================================================================= */
+
+/* Page wrapper — replaces the generic .section (140px top/bottom) which left a
+   large empty band under the header on this page. */
+.page {
+  padding: 48px 0 96px;
+}
+
+.shopHeader {
+  padding: 8px 0 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+.count {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Active filter chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 20px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: white;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background var(--duration-card) ease, color var(--duration-card) ease,
+    border-color var(--duration-card) ease;
+}
+
+.chip:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--ivory);
+}
+
+/* Sidebar + grid */
+.layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;              /* lets the sticky sidebar move inside its row */
+  padding-top: 40px;
+}
+
+.gridWrap {
+  min-width: 0;                    /* prevents grid blow-out on narrow screens */
+}
+
+/* Loading skeleton — same columns as ProductGrid */
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gap);
+}
+
+.skeletonCard {
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(90deg, var(--ivory-2) 0%, var(--ivory) 50%, var(--ivory-2) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* Tablet + mobile: sidebar is hidden by ProductFilters; show its pill trigger above the grid */
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    padding-top: 28px;
+  }
+  .layout > button {
+    justify-self: start;           /* trigger pill keeps its natural width */
+  }
+  .skeletonGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 767px) {
+  .page { padding: 32px 0 72px; }
+}
+
+@media (max-width: 575px) {
+  .skeletonGrid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip { transition: none; }
+  .skeletonCard { animation: none; }
+}

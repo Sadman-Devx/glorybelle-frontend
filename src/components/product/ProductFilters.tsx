@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Category } from '@/lib/types';
+import { lockBodyScroll } from '@/lib/scrollLock';
 import styles from './ProductFilters.module.css';
 
 interface ProductFiltersProps {
@@ -47,6 +48,20 @@ export default function ProductFilters({
   loading = false,
 }: ProductFiltersProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Lock page scroll + ESC to close while the mobile bottom-sheet is open
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    const unlock = lockBodyScroll();
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      unlock();
+    };
+  }, [mobileOpen]);
 
   // Active filter count — shown as a pill badge on the mobile trigger ("Filtra (2)")
   // per design.md §1.3.1 step 1.

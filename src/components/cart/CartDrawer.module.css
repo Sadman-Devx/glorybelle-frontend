@@ -29,6 +29,7 @@
   width: 420px;
   max-width: 92vw;
   height: 100vh;
+  height: 100dvh;                                 /* mobile: excludes browser URL bar */
   background: var(--ivory);
   z-index: calc(var(--z-drawer) + 1);            /* 201 */
   display: flex;

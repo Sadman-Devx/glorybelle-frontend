@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import MegaMenu from '@/components/nav/MegaMenu';
@@ -30,6 +30,11 @@ export default function Header() {
   const [megaCloseTimer, setMegaCloseTimer] = useState<NodeJS.Timeout | null>(null);
 
   const { itemCount, openDrawer } = useCart();
+
+  // Stable reference: MobileNav runs an effect on [pathname, onClose]. An inline
+  // arrow here changed on every Header render (announcement ticks every 4s) and
+  // closed the mobile menu by itself.
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -162,7 +167,7 @@ export default function Header() {
       </header>
 
       {/* Mobile nav drawer — below 1024px */}
-      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MobileNav open={menuOpen} onClose={closeMenu} />
     </>
   );
 }

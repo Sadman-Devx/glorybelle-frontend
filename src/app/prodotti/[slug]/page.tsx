@@ -53,7 +53,7 @@ export default function ProductDetailPage() {
     return (
       <div className="section container" style={{ textAlign: 'center' }}>
         <h2 className="heading-section">Prodotto non trovato</h2>
-        <a href="/shop" className="btn btn-primary" style={{ marginTop: '24px' }}>Torna allo Shop</a>
+        <a href="/prodotti" className="btn btn-primary" style={{ marginTop: '24px' }}>Torna allo Shop</a>
       </div>
     );
   }

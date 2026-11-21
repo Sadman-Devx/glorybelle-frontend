@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Image from 'next/image';
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
+import { lockBodyScroll } from '@/lib/scrollLock';
 import styles from './CartDrawer.module.css';
 import FirstPurchaseBanner from './FirstPurchaseBanner';
 
@@ -18,10 +19,10 @@ export default function CartDrawer() {
     };
     document.addEventListener('keydown', onKey);
     // Lock body scroll while drawer is open
-    document.body.style.overflow = 'hidden';
+    const unlock = lockBodyScroll();
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      unlock();
     };
   }, [drawerOpen, closeDrawer]);
 

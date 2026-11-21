@@ -48,7 +48,7 @@ export default function ProductCard({
       onMouseLeave={() => setIsHovering(false)}
     >
       <div className={styles.mediaWrap}>
-        <Link href={`/shop/${slug}`} className={styles.mediaLink}>
+        <Link href={`/prodotti/${slug}`} className={styles.mediaLink}>
           <div className={styles.imageStack}>
             <Image
               src={imgSrc}
@@ -117,7 +117,7 @@ export default function ProductCard({
       </div>
 
       <div className={styles.body}>
-        <Link href={`/shop/${slug}`} className={styles.nameLink}>
+        <Link href={`/prodotti/${slug}`} className={styles.nameLink}>
           <h3 className={styles.name}>{name}</h3>
         </Link>
         <div className={styles.meta}>

@@ -33,11 +33,11 @@ export default function Footer() {
 
         <div className={styles.col}>
           <h4 className={styles.colTitle}>Esplora</h4>
-          <Link href="/shop" className={styles.footerLink}>Collezione</Link>
-          <Link href="/shop?category=anelli" className={styles.footerLink}>Anelli</Link>
-          <Link href="/shop?category=collane" className={styles.footerLink}>Collane</Link>
-          <Link href="/shop?category=orecchini" className={styles.footerLink}>Orecchini</Link>
-          <Link href="/shop?category=bracciali" className={styles.footerLink}>Bracciali</Link>
+          <Link href="/prodotti" className={styles.footerLink}>Collezione</Link>
+          <Link href="/prodotti?category=anelli" className={styles.footerLink}>Anelli</Link>
+          <Link href="/prodotti?category=collane" className={styles.footerLink}>Collane</Link>
+          <Link href="/prodotti?category=orecchini" className={styles.footerLink}>Orecchini</Link>
+          <Link href="/prodotti?category=bracciali" className={styles.footerLink}>Bracciali</Link>
         </div>
 
         <div className={styles.col}>
