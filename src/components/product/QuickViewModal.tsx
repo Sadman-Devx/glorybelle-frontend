@@ -22,6 +22,8 @@ export default function QuickViewModal({ slug, onClose }: QuickViewModalProps) {
 
   useEffect(() => {
     if (!slug) return;
+    // Clear the previous product while the new one loads.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: reset before fetching
     setProduct(null);
     setSelectedVariant(null);
     catalog.product(slug)

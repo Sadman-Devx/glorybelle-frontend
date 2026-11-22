@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { cart as cartApi } from '@/lib/api';
-import type { Cart, CartItem } from '@/lib/types';
+import type { Cart } from '@/lib/types';
 
 interface CartContextType {
   cart: Cart | null;
@@ -50,6 +50,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial cart load on mount
     fetchCart();
   }, [fetchCart]);
 

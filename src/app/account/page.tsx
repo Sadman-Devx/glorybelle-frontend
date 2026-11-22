@@ -33,9 +33,10 @@ export default function AccountPage() {
           <div className={styles.panel}>
             <div className={styles.emptyState}>
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              <h3>Nessun ordine</h3>
-              <p>Non hai ancora effettuato ordini.</p>
-              <Link href="/prodotti" className="btn btn-primary">Vai allo Shop</Link>
+              <h3>I tuoi ordini</h3>
+              <p>Consulta lo storico dei tuoi ordini e lo stato delle spedizioni.</p>
+              <Link href="/account/ordini" className="btn btn-primary">Vedi i miei ordini</Link>
+              <Link href="/prodotti" className="btn btn-secondary">Vai allo Shop</Link>
             </div>
           </div>
         )}

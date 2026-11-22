@@ -51,7 +51,7 @@ export default function RegisterPage() {
         first_name: form.first_name,
         last_name: form.last_name,
         birth_date: form.birth_date,
-      } as any);  // cast to any until RegisterSerializer type is updated
+      });
       router.push('/account');
     } catch (err: unknown) {
       const apiErr = err as { data?: Record<string, unknown> };

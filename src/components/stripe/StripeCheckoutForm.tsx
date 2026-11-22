@@ -179,6 +179,7 @@ export default function StripeCheckoutForm(props: CheckoutFormProps) {
 
   // Load Stripe on mount (client-only)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Stripe.js must only load in the browser
     setStripePromise(getStripe());
   }, []);
 

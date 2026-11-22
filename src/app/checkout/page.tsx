@@ -54,6 +54,23 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
+      // Step 0: make sure the payment CAN be taken before creating anything on the
+      // backend — otherwise a failed attempt leaves an orphan "pending" order.
+      const stripe = await getStripe();
+      if (!stripe) {
+        setError('Stripe non è configurato. Impossibile procedere al pagamento.');
+        setSubmitting(false);
+        return;
+      }
+      const cardElement = stripe.elements().getElement('card');
+      if (!cardElement) {
+        // The card field is not mounted on this page yet (see the TODO in the Payment
+        // section below), so no payment can be made. Nothing has been created or charged.
+        setError('Il pagamento con carta non è ancora attivo. Nessun ordine è stato creato e nessun importo è stato addebitato.');
+        setSubmitting(false);
+        return;
+      }
+
       // Step 1: create Order on the backend (status=pending)
       // Backend resolves prices from ProductVariant server-side — never trust client total
       const order = await orders.create({
@@ -73,16 +90,9 @@ export default function CheckoutPage() {
       const intent = await payments.createIntent(order.id);
 
       // Step 3: confirm payment with Stripe
-      const stripe = await getStripe();
-      if (!stripe) {
-        setError('Stripe non è configurato. Impossibile procedere al pagamento.');
-        setSubmitting(false);
-        return;
-      }
-
       const { error: stripeError } = await stripe.confirmCardPayment(intent.client_secret, {
         payment_method: {
-          card: (stripe.elements() as any)?.getElement('card') || undefined,
+          card: cardElement,
           billing_details: {
             name: `${formData.firstName} ${formData.lastName}`,
             email: formData.email,
@@ -106,8 +116,8 @@ export default function CheckoutPage() {
       // Step 4: redirect to confirmation
       // The backend webhook (not this redirect) is the source of truth for payment success
       router.push(`/checkout/conferma?order=${order.order_number}`);
-    } catch (err: any) {
-      setError(err?.message || 'Errore durante il checkout. Riprova.');
+    } catch (err: unknown) {
+      setError(err instanceof Error && err.message ? err.message : 'Errore durante il checkout. Riprova.');
       setSubmitting(false);
     }
   };

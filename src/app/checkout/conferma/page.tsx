@@ -19,6 +19,7 @@ function ConfirmContent() {
   // webhook hasn't fired yet; we poll until it becomes "paid".
   useEffect(() => {
     if (!orderNumber) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- no order in the URL: nothing to poll
       setPolling(false);
       return;
     }

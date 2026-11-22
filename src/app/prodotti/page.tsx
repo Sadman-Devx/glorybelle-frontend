@@ -34,14 +34,13 @@ function ShopContent() {
 
   useEffect(() => {
     catalog.categories()
-      .then((res) => {
-        const list = Array.isArray(res) ? res : (res as any)?.results ?? [];
-        setCategories(list);
-      })
+      .then(setCategories)
       .catch(() => setCategories([]));
   }, []);
 
   useEffect(() => {
+    // Reset to the loading state whenever the filters change, then refetch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: loading state belongs to this fetch
     setLoading(true);
     setProducts([]);
 

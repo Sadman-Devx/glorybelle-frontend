@@ -18,7 +18,7 @@ const WishlistContext = createContext<WishlistContextType | null>(null);
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [, setIsAuthenticated] = useState(false);
 
   // Check if user is authenticated (has access token)
   const checkAuth = useCallback(() => {

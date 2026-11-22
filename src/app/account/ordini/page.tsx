@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { orders as ordersApi } from '@/lib/api';
 import type { Order } from '@/lib/types';
@@ -17,15 +16,10 @@ const STATUS_LABELS: Record<Order['status'], string> = {
 };
 
 export default function OrdersPage() {
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  // /account/* is already auth-gated by app/account/layout.tsx, so `user` is set here.
+  const { user } = useAuth();
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [error, setError] = useState(false);
-
-  // Orders belong to an account: send visitors who are not logged in to the login page.
-  useEffect(() => {
-    if (!authLoading && !user) router.replace('/login');
-  }, [authLoading, user, router]);
 
   useEffect(() => {
     if (!user) return;
@@ -34,7 +28,7 @@ export default function OrdersPage() {
       .catch(() => setError(true));
   }, [user]);
 
-  const isLoading = authLoading || (user !== null && orders === null && !error);
+  const isLoading = orders === null && !error;
 
   return (
     <div className={styles.page}>
