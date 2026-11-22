@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { catalog } from '@/lib/api';
@@ -38,12 +39,14 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className={`section container ${styles.skeleton}`}>
-        <div className={styles.skeletonImage} />
-        <div className={styles.skeletonInfo}>
-          <div className={styles.skeletonLine} style={{ width: '60%', height: '28px' }} />
-          <div className={styles.skeletonLine} style={{ width: '30%', height: '20px' }} />
-          <div className={styles.skeletonLine} style={{ width: '100%', height: '80px' }} />
+      <div className={styles.page}>
+        <div className={`container ${styles.skeleton}`}>
+          <div className={styles.skeletonImage} />
+          <div className={styles.skeletonInfo}>
+            <div className={styles.skeletonLine} style={{ width: '60%', height: '28px' }} />
+            <div className={styles.skeletonLine} style={{ width: '30%', height: '20px' }} />
+            <div className={styles.skeletonLine} style={{ width: '100%', height: '80px' }} />
+          </div>
         </div>
       </div>
     );
@@ -51,9 +54,11 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="section container" style={{ textAlign: 'center' }}>
-        <h2 className="heading-section">Prodotto non trovato</h2>
-        <a href="/prodotti" className="btn btn-primary" style={{ marginTop: '24px' }}>Torna allo Shop</a>
+      <div className={styles.page}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <h2 className="heading-section">Prodotto non trovato</h2>
+          <Link href="/prodotti" className="btn btn-primary" style={{ marginTop: '24px' }}>Torna allo Shop</Link>
+        </div>
       </div>
     );
   }
@@ -65,7 +70,7 @@ export default function ProductDetailPage() {
     : [{ id: 0, image: `/products/${product.slug}.jpg`, alt_text: product.name, is_primary: true, sort_order: 0, image_alt: null }];
 
   return (
-    <div className="section">
+    <div className={styles.page}>
       <div className={`container ${styles.detail}`}>
         {/* Image gallery */}
         <div className={styles.gallery}>

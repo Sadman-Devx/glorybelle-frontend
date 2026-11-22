@@ -24,11 +24,13 @@ export default function OrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="section container">
-        <div className={styles.skeleton}>
-          <div className={styles.skeletonLine} style={{ width: '40%', height: '32px' }} />
-          <div className={styles.skeletonLine} style={{ width: '60%', height: '20px' }} />
-          <div className={styles.skeletonLine} style={{ width: '100%', height: '120px' }} />
+      <div className={styles.page}>
+        <div className="container">
+          <div className={styles.skeleton}>
+            <div className={styles.skeletonLine} style={{ width: '40%', height: '32px' }} />
+            <div className={styles.skeletonLine} style={{ width: '60%', height: '20px' }} />
+            <div className={styles.skeletonLine} style={{ width: '100%', height: '120px' }} />
+          </div>
         </div>
       </div>
     );
@@ -36,17 +38,32 @@ export default function OrderDetailPage() {
 
   if (error || !order) {
     return (
-      <div className="section container" style={{ textAlign: 'center' }}>
-        <h1 className="heading-section">{error || 'Ordine non trovato'}</h1>
-        <Link href="/account/ordini" className="btn btn-primary" style={{ marginTop: '20px' }}>
-          Vedi i miei ordini
-        </Link>
+      <div className={styles.page}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <h1 className="heading-section">{error || 'Ordine non trovato'}</h1>
+          <Link href="/account/ordini" className="btn btn-primary" style={{ marginTop: '20px' }}>
+            Vedi i miei ordini
+          </Link>
+        </div>
       </div>
     );
   }
 
+  // The backend may return either the detailed or the compact order shape —
+  // derive anything that is missing from fields that are always present.
+  const subtotal = order.subtotal !== undefined
+    ? parseFloat(order.subtotal)
+    : order.items.reduce((sum, item) => sum + parseFloat(item.line_total), 0);
+  const total = parseFloat(order.total);
+  const shippingCost = order.shipping_cost !== undefined
+    ? parseFloat(order.shipping_cost)
+    : Math.max(0, total - subtotal);
+  const recipient = [order.shipping_first_name, order.shipping_last_name].filter(Boolean).join(' ')
+    || order.shipping_name;
+  const addressLine = order.shipping_line1 ?? order.shipping_address;
+
   return (
-    <div className="section">
+    <div className={styles.page}>
       <div className="container">
         <Link href="/account/ordini" className={styles.backLink}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -81,10 +98,10 @@ export default function OrderDetailPage() {
                   <div className={styles.itemInfo}>
                     <h3 className={styles.itemName}>{item.product_name}</h3>
                     <p className={styles.itemVariant}>
-                      {item.variant_metal_display}
+                      {item.variant_metal_display ?? item.variant_info}
                       {item.variant_size ? ` · Misura ${item.variant_size}` : ''}
                     </p>
-                    <p className={styles.itemSku}>SKU: {item.sku}</p>
+                    {item.sku && <p className={styles.itemSku}>SKU: {item.sku}</p>}
                   </div>
                   <div className={styles.itemMeta}>
                     <span className={styles.itemQty}>×{item.quantity}</span>
@@ -98,13 +115,12 @@ export default function OrderDetailPage() {
             {/* Shipping address — snapshotted at purchase time */}
             <h2 className={styles.sectionTitle}>Spedizione</h2>
             <div className={styles.addressCard}>
-              <p className={styles.addressName}>
-                {order.shipping_first_name} {order.shipping_last_name}
-              </p>
-              <p className={styles.addressLine}>{order.shipping_line1}</p>
+              <p className={styles.addressName}>{recipient}</p>
+              <p className={styles.addressLine}>{addressLine}</p>
               {order.shipping_line2 && <p className={styles.addressLine}>{order.shipping_line2}</p>}
               <p className={styles.addressLine}>
-                {order.shipping_postal_code} {order.shipping_city} ({order.shipping_province})
+                {order.shipping_postal_code} {order.shipping_city}
+                {order.shipping_province ? ` (${order.shipping_province})` : ''}
               </p>
               <p className={styles.addressLine}>{order.shipping_country}</p>
             </div>
@@ -116,16 +132,16 @@ export default function OrderDetailPage() {
               <h2 className={styles.sectionTitle}>Riepilogo</h2>
               <div className={styles.summaryRow}>
                 <span>Subtotale</span>
-                <span>€{parseFloat(order.subtotal).toFixed(2)}</span>
+                <span>€{subtotal.toFixed(2)}</span>
               </div>
               <div className={styles.summaryRow}>
                 <span>Spedizione</span>
-                <span>{parseFloat(order.shipping_cost) === 0 ? 'Gratuita' : `€${parseFloat(order.shipping_cost).toFixed(2)}`}</span>
+                <span>{shippingCost === 0 ? 'Gratuita' : `€${shippingCost.toFixed(2)}`}</span>
               </div>
               <div className={styles.divider} />
               <div className={styles.summaryTotal}>
                 <span>Totale</span>
-                <span>€{parseFloat(order.total).toFixed(2)}</span>
+                <span>€{total.toFixed(2)}</span>
               </div>
               <div className={styles.emailNote}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">

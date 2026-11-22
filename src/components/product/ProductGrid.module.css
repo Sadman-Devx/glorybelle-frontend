@@ -24,10 +24,100 @@
   color: rgba(20, 32, 28, 0.5);
 }
 
+.emptyIcon {
+  display: block;
+  margin: 0 auto 20px;
+  color: var(--gold-deep);
+  opacity: 0.7;
+}
+
+.emptyHint {
+  margin-top: 16px;
+  font-size: 13px;
+  color: rgba(20, 32, 28, 0.6);
+}
+
+.emptyLink {
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--gold-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.emptyLink:hover { color: var(--ink); }
+
+/* "Notify me" waitlist form */
+.waitlist {
+  max-width: 420px;
+  margin: 28px auto 0;
+  text-align: left;
+}
+
+.waitlistLabel {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.waitlistRow {
+  display: flex;
+  gap: 8px;
+}
+
+.waitlistInput {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: white;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.waitlistInput:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.waitlistBtn {
+  padding: 11px 22px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--emerald-deep);
+  color: white;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--duration-card) ease;
+}
+
+.waitlistBtn:hover { background: var(--ink); }
+
+.waitlistSuccess {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gold-deep);
+}
+
 @media (max-width: 1023px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 575px) {
   .grid { grid-template-columns: 1fr; }
+  .waitlistRow { flex-direction: column; }
 }

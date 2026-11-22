@@ -76,7 +76,11 @@ export const cart = {
 export const orders = {
   create: (data: Record<string, unknown>) =>
     apiFetch<Order>('/api/orders/create/', { method: 'POST', body: JSON.stringify(data) }),
-  list: () => apiFetch<Order[]>('/api/orders/'),
+  // DRF pagination may wrap the list in { results } — unwrap to a plain array.
+  list: async (): Promise<Order[]> => {
+    const res = await apiFetch<Order[] | PaginatedResponse<Order>>('/api/orders/');
+    return Array.isArray(res) ? res : (res as PaginatedResponse<Order>).results ?? [];
+  },
   detail: (orderNumber: string) => apiFetch<Order>(`/api/orders/${orderNumber}/`),
 };
 
@@ -100,6 +104,11 @@ export const auth = {
     apiFetch<Address>('/api/accounts/addresses/', { method: 'POST', body: JSON.stringify(data) }),
   firstPurchaseDiscount: () =>
     apiFetch<FirstPurchaseDiscount>('/api/accounts/first-purchase-discount/'),
+  // Endpoint path is an assumption — adjust if your backend names it differently.
+  requestPasswordReset: (email: string) =>
+    apiFetch<void>('/api/accounts/password-reset/', {
+      method: 'POST', body: JSON.stringify({ email }),
+    }),
 };
 
 export const wishlist = {

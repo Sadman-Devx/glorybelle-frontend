@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { auth as authApi } from '@/lib/api';
+import { auth as authApi, setAccessToken } from '@/lib/api';
 import type { User } from '@/lib/types';
 
 interface AuthContextType {
@@ -29,10 +29,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ? localStorage.getItem(ACCESS_TOKEN_KEY)
         : null;
       if (token) {
+        setAccessToken(token);            // without this the API client sends no Authorization header
         try {
           const me = await authApi.me();
           setUser(me);
         } catch {
+          setAccessToken(null);
           localStorage.removeItem(ACCESS_TOKEN_KEY);
           localStorage.removeItem(REFRESH_TOKEN_KEY);
         }
@@ -46,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tokens = await authApi.login(email, password);
     localStorage.setItem(ACCESS_TOKEN_KEY, tokens.access);
     localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh);
+    setAccessToken(tokens.access);
     const me = await authApi.me();
     setUser(me);
   }, []);
@@ -69,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Logout API call failed — clear tokens locally anyway
       }
     }
+    setAccessToken(null);
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     setUser(null);

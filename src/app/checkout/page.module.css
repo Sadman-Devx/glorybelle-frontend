@@ -113,8 +113,6 @@
    Order summary sidebar — sticky on desktop
    ============================================================================= */
 .summary {
-  position: sticky;
-  top: 100px;
   background: var(--ivory);
   border: 1px solid var(--line);
   border-radius: var(--radius-collection);        /* 14px — editorial card */
@@ -206,6 +204,16 @@
 /* =============================================================================
    Responsive
    ============================================================================= */
+/* Sticky only on tall screens, where the whole summary fits under the header.
+   On shorter screens it scrolls with the page, so the total / pay button never
+   get cut off. */
+@media (min-width: 1024px) and (min-height: 800px) {
+  .summary {
+    position: sticky;
+    top: 100px;
+  }
+}
+
 @media (max-width: 1023px) {
   .checkout {
     grid-template-columns: 1fr;

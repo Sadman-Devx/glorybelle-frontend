@@ -116,6 +116,10 @@ export interface OrderItem {
   quantity: number;
   unit_price: string;
   line_total: string;
+  // Present when the backend serializer returns the detailed item shape
+  variant_metal_display?: string;
+  variant_size?: string;
+  sku?: string;
 }
 
 export interface Order {
@@ -131,6 +135,15 @@ export interface Order {
   shipping_postal_code: string;
   shipping_country: string;
   created_at: string;
+  // Present when the backend serializer returns the detailed order shape
+  status_display?: string;
+  subtotal?: string;
+  shipping_cost?: string;
+  shipping_first_name?: string;
+  shipping_last_name?: string;
+  shipping_line1?: string;
+  shipping_line2?: string;
+  shipping_province?: string;
 }
 
 // ── Auth ──

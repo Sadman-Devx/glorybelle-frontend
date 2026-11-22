@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * GLORYBELLE — middleware.ts
+ * GLORYBELLE — proxy.ts (Next 16 name for the former middleware.ts)
  * P1 fix #23 — handle route renames /shop → /prodotti (and /shop/{slug} → /prodotti/{slug}).
  * Permanent 308 redirect so existing bookmarks / SEO links keep working.
  */
-export function middleware(request: NextRequest) {
-  const { pathname, search } = request.nextUrl;
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
   // /shop → /prodotti
   // /shop/{slug} → /prodotti/{slug}
@@ -29,6 +29,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Only run middleware on /shop and /conferma paths (cheap)
+  // Only run the proxy on /shop and /conferma paths (cheap)
   matcher: ['/shop/:path*', '/conferma/:path*'],
 };

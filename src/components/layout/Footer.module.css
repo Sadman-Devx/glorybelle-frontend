@@ -11,6 +11,10 @@
   gap: 48px;
 }
 
+.col {
+  min-width: 0;                    /* newsletter input must not push the grid wider */
+}
+
 .brand {
   font-family: var(--font-display);
   font-size: 20px;

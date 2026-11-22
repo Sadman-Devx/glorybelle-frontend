@@ -1,6 +1,8 @@
 /* Product Detail Page */
-.detail {
-  padding: 40px 0;
+
+/* Page wrapper — replaces the generic .section (140px top/bottom) */
+.page {
+  padding: 48px 0 96px;
 }
 
 .backLink {
@@ -18,9 +20,14 @@
 
 .detail {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 56px;
   align-items: start;
+}
+
+.gallery,
+.info {
+  min-width: 0;                    /* grid children must be allowed to shrink */
 }
 
 /* Image gallery */
@@ -98,6 +105,15 @@
   margin-bottom: 10px;
 }
 
+/* Selected variant name, shown next to the "Variante" label */
+.variantValue {
+  margin-left: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--gold-deep);
+}
+
 .variantRow {
   display: flex;
   gap: 8px;
@@ -105,6 +121,9 @@
 }
 
 .variantBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
   border: 1.5px solid var(--line-strong);
@@ -116,7 +135,20 @@
   transition: all var(--duration-card) ease;
 }
 
-.variantBtn:hover { border-color: var(--ink); }
+.variantBtn:hover:not(:disabled) { border-color: var(--ink); }
+.variantBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.variantSize { font-weight: 500; opacity: 0.7; }
+
+.variantOos {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
 .variantActive {
   background: var(--emerald-deep);
   color: white;
@@ -149,7 +181,14 @@
 }
 
 /* Skeleton */
-.skeleton { padding: 40px 0; }
+.skeleton {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.skeletonInfo { padding-top: 8px; }
 .skeletonImage {
   aspect-ratio: 1 / 1;
   border-radius: var(--radius-testimonial);
@@ -170,6 +209,8 @@
 }
 
 @media (max-width: 767px) {
-  .layout { grid-template-columns: 1fr; gap: 28px; }
+  .page { padding: 32px 0 72px; }
+  .detail,
+  .skeleton { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .trust { flex-direction: column; gap: 10px; }
 }

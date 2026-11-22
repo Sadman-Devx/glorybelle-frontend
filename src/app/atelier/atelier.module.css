@@ -1,0 +1,144 @@
+/* Shared by /atelier and /atelier/[type] */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--grid-gap);
+  margin-bottom: 72px;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 32px 28px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  transition: border-color var(--duration-card) ease, transform var(--duration-card) ease;
+}
+
+.card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.cardTitle {
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.cardText {
+  flex: 1;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(20, 32, 28, 0.7);
+}
+
+.cardLink {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sectionTitle {
+  margin-bottom: 28px;
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--grid-gap);
+  margin-bottom: 64px;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  position: relative;
+  padding-top: 44px;
+  counter-increment: step;
+}
+
+.step::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--gold);
+}
+
+.stepTitle {
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.stepText {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(20, 32, 28, 0.7);
+}
+
+.options {
+  max-width: 760px;
+  margin-bottom: 64px;
+  border-top: 1px solid var(--line);
+}
+
+.option {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.optionLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.optionValues {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+@media (max-width: 899px) {
+  .cards { grid-template-columns: minmax(0, 1fr); margin-bottom: 56px; }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 575px) {
+  .steps { grid-template-columns: minmax(0, 1fr); }
+  .option { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .card:hover { transform: none; }
+}

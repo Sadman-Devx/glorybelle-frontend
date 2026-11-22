@@ -1,7 +1,8 @@
 'use client';
 
 import { Elements, CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
-import { useState, FormEvent } from 'react';
+import type { Stripe } from '@stripe/stripe-js';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 import { orders, payments } from '@/lib/api';
@@ -26,7 +27,7 @@ function CheckoutForm({ formData }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
-  const { cart, addItem: _addItem } = useCart();
+  const { cart } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -174,7 +175,7 @@ function CheckoutForm({ formData }: CheckoutFormProps) {
  * Lazy-loaded so Stripe.js only loads on the checkout page (not site-wide).
  */
 export default function StripeCheckoutForm(props: CheckoutFormProps) {
-  const [stripePromise, setStripePromise] = useState<Promise<any>>(null);
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
 
   // Load Stripe on mount (client-only)
   useEffect(() => {
@@ -192,5 +193,3 @@ export default function StripeCheckoutForm(props: CheckoutFormProps) {
   );
 }
 
-// Import moved to top of file via useEffect — placeholder for actual hook import
-import { useEffect, useState } from 'react';

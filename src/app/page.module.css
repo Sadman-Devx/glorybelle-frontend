@@ -24,6 +24,10 @@
   align-items: center;
 }
 
+.craftText {
+  min-width: 0;
+}
+
 .craftDesc {
   font-size: 15px;
   line-height: 1.75;

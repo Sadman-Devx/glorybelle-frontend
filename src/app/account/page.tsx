@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import styles from './page.module.css';
 
 type Tab = 'orders' | 'addresses';
@@ -9,7 +10,7 @@ export default function AccountPage() {
   const [activeTab, setActiveTab] = useState<Tab>('orders');
 
   return (
-    <div className="section">
+    <div className={styles.page}>
       <div className="container">
         <h1 className={styles.heading}>Il Mio Account</h1>
 
@@ -34,7 +35,7 @@ export default function AccountPage() {
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               <h3>Nessun ordine</h3>
               <p>Non hai ancora effettuato ordini.</p>
-              <a href="/prodotti" className="btn btn-primary">Vai allo Shop</a>
+              <Link href="/prodotti" className="btn btn-primary">Vai allo Shop</Link>
             </div>
           </div>
         )}
