@@ -35,12 +35,16 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
+  visibility: hidden;
+  pointer-events: none;
   transition: transform var(--duration-modal) var(--ease-luxury);
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
 }
 
 .drawerOpen {
   transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /* Header */

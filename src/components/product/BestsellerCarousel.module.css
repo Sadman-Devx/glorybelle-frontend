@@ -1,6 +1,7 @@
 /* Bestseller Carousel (design.md §1.3 — scroll-snap, swipeable) */
 .rail {
   display: flex;
+  align-items: stretch;
   gap: var(--grid-gap);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -19,6 +20,18 @@
 .skeleton {
   display: flex;
   gap: var(--grid-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 10px 0 24px;
+  scrollbar-width: none;
+}
+
+.skeleton::-webkit-scrollbar {
+  display: none;
+}
+
+.skeletonCard {
+  scroll-snap-align: start;
 }
 
 .skeletonCard {

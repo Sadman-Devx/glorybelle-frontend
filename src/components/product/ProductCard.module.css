@@ -21,8 +21,12 @@
 
 /* Carousel card — 220px wide, 4px radius (design.md §4.6 row 2) */
 .compact {
+  box-sizing: border-box;
+  width: 220px;
   max-width: 220px;
-  flex-shrink: 0;
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--line);
   border-radius: var(--radius-carousel);     /* 4px — was using --radius-card (3px) — FIXED */
 }
@@ -215,7 +219,14 @@
 }
 
 .compact .body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   padding: 12px 14px 14px;
+}
+
+.compact .meta {
+  margin-top: auto;
 }
 
 .nameLink {
