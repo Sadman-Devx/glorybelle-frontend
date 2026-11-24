@@ -1,0 +1,301 @@
+.page {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--emerald-deep);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.backLink:focus-visible,
+.details a:focus-visible,
+.backButton:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.heading h1 {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.heading p {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 340px);
+  align-items: start;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.main,
+.sidebar {
+  display: grid;
+  min-width: 0;
+  gap: 18px;
+}
+
+.card {
+  min-width: 0;
+  padding: clamp(16px, 2.5vw, 22px);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.card h2 {
+  margin-bottom: 16px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.message {
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.details {
+  display: grid;
+  gap: 14px;
+}
+
+.details > div {
+  display: grid;
+  gap: 4px;
+}
+
+.details dt {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.details dd {
+  min-width: 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.details a {
+  color: var(--emerald-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.notes {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notes li {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fffdf8;
+}
+
+.notes li p {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.notes small {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.muted {
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.form label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.form textarea,
+.form select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  background: var(--ivory);
+  font: inherit;
+  font-size: 12px;
+}
+
+.form textarea {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.form textarea:focus-visible,
+.form select:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.form button {
+  justify-self: start;
+}
+
+.replyLink {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-self: start;
+  padding: 10px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.replyLink:hover {
+  border-color: var(--ink);
+  background: var(--ivory-2);
+}
+
+.replyLink:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.actionError,
+.statusMessage {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid #e4c0bb;
+  border-radius: 3px;
+  color: #772f26;
+  background: #f8e9e6;
+  font-size: 12px;
+}
+
+.statusMessage {
+  border-color: #b7d5c4;
+  color: #174b35;
+  background: #e4f1e8;
+}
+
+.errorActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.backButton {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  padding: 10px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.skeletonHeader,
+.skeletonCard {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--ivory) 25%, var(--ivory-2) 50%, var(--ivory) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.skeletonHeader {
+  width: min(45%, 420px);
+  height: 90px;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 340px);
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.skeletonCard {
+  min-height: 300px;
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 850px) {
+  .layout,
+  .skeletonGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .skeletonHeader {
+    width: 80%;
+  }
+
+  .form button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonHeader,
+  .skeletonCard {
+    animation: none;
+  }
+}

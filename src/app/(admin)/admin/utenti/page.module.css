@@ -1,0 +1,288 @@
+.page {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.heading,
+.sectionHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.heading h1 {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.heading p,
+.sectionHeading > span,
+.hint {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.invite,
+.section {
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+  padding: clamp(14px, 2.5vw, 22px);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.invite h2,
+.sectionHeading h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.inviteFields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.field > span {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.field input,
+.field select,
+.roleEditor select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  background: white;
+  font: inherit;
+  font-size: 12px;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.roleEditor select:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.hint {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(160px, 0.5fr);
+  gap: 12px;
+}
+
+.tableWrap {
+  min-width: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  text-align: left;
+}
+
+.table th {
+  padding: 12px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.email {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.roleEditor,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.roleEditor select {
+  width: auto;
+  min-width: 125px;
+  min-height: 36px;
+}
+
+.actions button,
+.roleEditor button {
+  min-height: 34px;
+  padding: 7px 9px;
+  font-size: 10px;
+}
+
+.sectionHeading {
+  align-items: center;
+}
+
+.sectionHeading > span {
+  margin: 0;
+}
+
+.notice,
+.error,
+.status {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.notice {
+  color: #174b35;
+}
+
+.error {
+  color: #772f26;
+}
+
+.status {
+  color: var(--text-muted);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 860px) {
+  .inviteFields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .table tr {
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+  }
+
+  .table td {
+    display: grid;
+    grid-template-columns: minmax(92px, 0.35fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+  }
+
+  .table td:last-child {
+    border-bottom: 0;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 9px;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .actions {
+    justify-content: flex-end;
+  }
+
+  .roleEditor {
+    justify-content: flex-end;
+  }
+
+  .roleEditor select {
+    min-width: 0;
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 420px) {
+  .heading {
+    flex-direction: column;
+  }
+
+  .inviteFields {
+    grid-template-columns: 1fr;
+  }
+}

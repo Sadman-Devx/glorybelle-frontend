@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -25,10 +26,37 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    const nonce = randomBytes(16).toString('base64');
+    const contentSecurityPolicy = [
+      "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+    ].join('; ');
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('Content-Security-Policy', contentSecurityPolicy);
+    requestHeaders.set('x-nonce', nonce);
+
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    response.headers.set('Content-Security-Policy', contentSecurityPolicy);
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('Referrer-Policy', 'same-origin');
+    response.headers.set('X-Robots-Tag', 'noindex');
+    response.headers.set('Cache-Control', 'no-store');
+    return response;
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  // Only run the proxy on /shop and /conferma paths (cheap)
-  matcher: ['/shop/:path*', '/conferma/:path*'],
+  matcher: ['/shop/:path*', '/conferma/:path*', '/admin', '/admin/:path*'],
 };

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import RevealOnScroll from '@/components/animation/RevealOnScroll';
+import { siteContent } from '@/lib/api';
 import styles from './Testimonials.module.css';
 
 interface Testimonial {
@@ -34,9 +35,30 @@ const TESTIMONIALS: Testimonial[] = [
 
 export default function Testimonials() {
   const [idx, setIdx] = useState(0);
-  const current = TESTIMONIALS[idx];
-  const prev = () => setIdx((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
-  const next = () => setIdx((i) => (i + 1) % TESTIMONIALS.length);
+  const [testimonials, setTestimonials] = useState(TESTIMONIALS);
+
+  useEffect(() => {
+    let active = true;
+    siteContent.testimonials().then((items) => {
+      if (active && items.length > 0) {
+        setTestimonials(items.map((item) => ({
+          quote: item.quote,
+          name: item.name,
+          role: 'Cliente',
+          photo: item.photo_url,
+        })));
+      }
+    }).catch((error: unknown) => {
+      console.error('Non è stato possibile caricare le testimonianze.', error);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const current = testimonials[idx % testimonials.length];
+  const prev = () => setIdx((i) => (i - 1 + testimonials.length) % testimonials.length);
+  const next = () => setIdx((i) => (i + 1) % testimonials.length);
 
   return (
     <section className={styles.testi} id="reviews" aria-label="Recensioni clienti">

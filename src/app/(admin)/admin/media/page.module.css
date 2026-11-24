@@ -1,0 +1,283 @@
+.page {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.heading h1 {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.heading p {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.count {
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ivory);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto auto;
+  align-items: end;
+  gap: 12px;
+  margin: 26px 0 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.filters label {
+  display: grid;
+  gap: 7px;
+}
+
+.filters label > span {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.filters input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  background: #fffdf8;
+  font: inherit;
+  font-size: 12px;
+}
+
+.filters input:focus-visible,
+.filters button:focus-visible,
+.pagination button:focus-visible,
+.card button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.imageFrame {
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: var(--ivory-2);
+}
+
+.imageFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardBody {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  padding: 13px;
+}
+
+.altText {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.dimensions,
+.date,
+.readOnly {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.inUse {
+  color: #76521a;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.unused {
+  color: #174b35;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.card button {
+  width: 100%;
+  min-height: 36px;
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+
+.error {
+  margin-bottom: 14px;
+  padding: 11px 13px;
+  border: 1px solid #e4c0bb;
+  border-radius: 3px;
+  color: #772f26;
+  background: #f8e9e6;
+  font-size: 11px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination > div > span {
+  min-width: 50px;
+  color: var(--ink);
+  text-align: center;
+}
+
+.pagination button {
+  min-height: 36px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+
+.skeletonHeading,
+.skeletonFilters,
+.skeletonGrid > div,
+.skeletonCard {
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--ivory) 25%, var(--ivory-2) 50%, var(--ivory) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.skeletonHeading {
+  width: min(420px, 65%);
+  height: 72px;
+}
+
+.skeletonFilters {
+  height: 84px;
+  margin: 26px 0 18px;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.skeletonGrid > div,
+.skeletonCard {
+  aspect-ratio: 0.8;
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .skeletonGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .grid,
+  .skeletonGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filters label {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 520px) {
+  .heading {
+    flex-direction: column;
+  }
+
+  .filters {
+    padding: 14px;
+  }
+
+  .filters button {
+    width: 100%;
+  }
+
+  .pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pagination > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 400px) {
+  .grid,
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonHeading,
+  .skeletonFilters,
+  .skeletonGrid > div,
+  .skeletonCard {
+    animation: none;
+  }
+}

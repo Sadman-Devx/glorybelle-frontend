@@ -1,0 +1,43 @@
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.label {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 13px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  background: #fffdf8;
+  font: 500 14px/1.4 var(--font-body);
+}
+
+.input:focus-visible {
+  border-color: var(--emerald);
+  outline: 3px solid rgba(31, 77, 62, 0.18);
+}
+
+.invalid {
+  border-color: var(--rosewood);
+}
+
+.hint,
+.error {
+  font-size: 11px;
+}
+
+.hint {
+  color: var(--text-muted);
+}
+
+.error {
+  color: var(--rosewood);
+}

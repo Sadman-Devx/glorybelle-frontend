@@ -1,0 +1,136 @@
+.uploader {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.dropzone {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: 22px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 4px;
+  text-align: center;
+  background: rgba(239, 231, 214, 0.5);
+}
+
+.dropzone p {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dropzone > span {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.dropzone:focus-within,
+.dragging {
+  border-color: var(--gold-deep);
+  outline: 3px solid rgba(185, 146, 79, 0.25);
+}
+
+.disabled {
+  opacity: 0.6;
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.queue {
+  display: grid;
+  gap: 8px;
+}
+
+.queueItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(140px, 0.8fr);
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+
+.fileSummary {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.fileSummary > span {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.fileSummary small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.progress {
+  position: relative;
+  height: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--ivory-2);
+}
+
+.progress > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--gold-light);
+  transition: width 0.12s linear;
+}
+
+.progress small {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.retryRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.error {
+  color: #772f26;
+  font-size: 10px;
+}
+
+.complete {
+  justify-self: end;
+  color: #174b35;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+@media (max-width: 520px) {
+  .dropzone {
+    padding: 16px 10px;
+  }
+
+  .queueItem {
+    grid-template-columns: 1fr;
+  }
+
+  .retryRow {
+    justify-content: space-between;
+  }
+}

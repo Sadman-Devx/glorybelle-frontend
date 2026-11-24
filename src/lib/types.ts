@@ -85,6 +85,30 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
+export interface PublicHeroImage {
+  id: number;
+  image_url: string;
+  alt_text: string;
+  sort_order: number;
+}
+
+export interface PublicInstagramImage {
+  image_url: string;
+  alt_text: string;
+}
+
+export interface PublicInstagramGrid {
+  link: string;
+  images: PublicInstagramImage[];
+}
+
+export interface PublicTestimonial {
+  id: number;
+  name: string;
+  quote: string;
+  photo_url: string;
+}
+
 // ── Cart ──
 
 export interface CartItem {
@@ -202,5 +226,21 @@ export interface PaymentIntent {
 export interface FirstPurchaseDiscount {
   eligible: boolean;
   percent: string;
+  message: string;
+}
+
+export type EnquiryTopic = 'prodotto' | 'ordine' | 'atelier' | 'altro';
+export type AtelierType = 'anelli' | 'collane' | 'orecchini';
+
+export interface EnquirySubmission {
+  name: string;
+  email: string;
+  topic: EnquiryTopic;
+  message: string;
+  atelier_type?: AtelierType;
+  website?: string;
+}
+
+export interface EnquirySubmissionResponse {
   message: string;
 }

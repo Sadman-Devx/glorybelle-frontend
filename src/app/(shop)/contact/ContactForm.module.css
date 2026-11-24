@@ -59,6 +59,27 @@
   color: var(--text-muted);
 }
 
+.error {
+  color: var(--rosewood);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.error a {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
 .hint a {
   color: var(--gold-deep);
   font-weight: 600;

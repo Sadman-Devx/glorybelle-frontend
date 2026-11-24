@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
+import { siteContent } from '@/lib/api';
 import styles from './HeroSticky.module.css';
 
 const HERO_IMAGES = [
@@ -25,15 +26,30 @@ interface HeroStickyProps {
 
 export default function HeroSticky({ children }: HeroStickyProps) {
   const [currentImage, setCurrentImage] = useState(0);
+  const [heroImages, setHeroImages] = useState(HERO_IMAGES);
   const [hintVisible, setHintVisible] = useState(true);
 
-  // 3-image crossfade slideshow
   useEffect(() => {
+    let active = true;
+    siteContent.hero().then((images) => {
+      if (active && images.length > 0) {
+        setHeroImages(images.map((image) => image.image_url));
+      }
+    }).catch((error: unknown) => {
+      console.error('Non è stato possibile caricare le immagini hero.', error);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (heroImages.length < 2) return undefined;
     const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % HERO_IMAGES.length);
+      setCurrentImage((prev) => (prev + 1) % heroImages.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroImages.length]);
 
   // Scroll hint — state only changes when the threshold is crossed,
   // so scrolling does not re-render the hero on every frame.
@@ -44,15 +60,17 @@ export default function HeroSticky({ children }: HeroStickyProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const activeImage = currentImage % heroImages.length;
+
   return (
     <section className={styles.hero}>
       {/* Pinned background — design.md §1.1: "background stays fixed while hero
           content and stats rise over it". ONLY this layer is sticky. */}
       <div className={styles.bg} aria-hidden="true">
-        {HERO_IMAGES.map((src, i) => (
+        {heroImages.map((src, i) => (
           <div
             key={src}
-            className={`${styles.bgImage} ${i === currentImage ? styles.active : ''}`}
+            className={`${styles.bgImage} ${i === activeImage ? styles.active : ''}`}
             style={{ backgroundImage: `url(${src})` }}
           />
         ))}

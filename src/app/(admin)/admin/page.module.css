@@ -1,0 +1,248 @@
+.page {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.heading h1 {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.heading p,
+.sectionHeading p {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 34px;
+}
+
+.metric,
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.metric {
+  display: grid;
+  min-height: 148px;
+  align-content: start;
+  gap: 9px;
+  padding: 20px;
+}
+
+.metric > span {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.metric strong {
+  color: var(--emerald-deep);
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.metric small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.panel {
+  min-width: 0;
+  padding: 20px;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionHeading h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.sectionHeading p {
+  font-size: 11px;
+}
+
+.sectionHeading > a {
+  flex: 0 0 auto;
+  color: var(--emerald-deep);
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.statusList,
+.stockList {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statusLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+  font-size: 12px;
+}
+
+.statusLabel strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.barTrack {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--ivory-2);
+}
+
+.barTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--emerald);
+}
+
+.stockList {
+  gap: 0;
+}
+
+.stockList li {
+  border-top: 1px solid var(--line);
+}
+
+.stockList a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 0;
+  color: var(--ink);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.stockList a:hover span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.stockList small {
+  color: var(--rosewood);
+  white-space: nowrap;
+}
+
+.emptyMessage {
+  margin-top: 24px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.error {
+  margin-top: 26px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.skeletonMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.skeletonCard,
+.skeletonPanel {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--ivory) 25%, var(--ivory-2) 50%, var(--ivory) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.skeletonCard {
+  height: 148px;
+}
+
+.skeletonPanel {
+  height: 250px;
+  margin-top: 22px;
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 760px) {
+  .metrics,
+  .skeletonMetrics {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .metric {
+    min-height: auto;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 16px;
+  }
+
+  .metric strong {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 440px) {
+  .heading {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonCard,
+  .skeletonPanel {
+    animation: none;
+  }
+}

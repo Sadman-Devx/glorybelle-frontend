@@ -1,0 +1,146 @@
+.picker {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.selected {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.selected img {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+.selected span,
+.asset span {
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.empty,
+.status {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.panel {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.panelHeading,
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.panelHeading h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.search {
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.search input {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  background: white;
+  font: inherit;
+}
+
+.search input:focus-visible,
+.asset:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.asset {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+}
+
+.asset[aria-pressed='true'] {
+  border-color: var(--gold-deep);
+  box-shadow: inset 0 0 0 1px var(--gold-deep);
+}
+
+.asset img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.asset span {
+  display: -webkit-box;
+  overflow: hidden;
+  min-height: 24px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.pagination {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.notice {
+  color: #174b35;
+  font-size: 11px;
+}
+
+.error {
+  color: #772f26;
+  font-size: 11px;
+}
+
+@media (max-width: 620px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

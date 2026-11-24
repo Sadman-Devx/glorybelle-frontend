@@ -1,0 +1,328 @@
+.page {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.heading h1 {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.heading p {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.primaryLink {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 3px;
+  color: #fff;
+  background: var(--emerald-deep);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.primaryLink:hover {
+  background: var(--emerald);
+}
+
+.primaryLink:focus-visible,
+.filters input:focus-visible,
+.filters select:focus-visible,
+.table button:focus-visible,
+.table a:focus-visible,
+.pagination button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(200px, 1.7fr) minmax(160px, 1fr) minmax(130px, 0.8fr) auto auto;
+  align-items: end;
+  gap: 12px;
+  margin: 26px 0 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.filters label {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.filters label > span {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.filters input,
+.filters select {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  background: var(--ivory);
+  font: inherit;
+  font-size: 12px;
+}
+
+.filters > button {
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.tablePanel {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+}
+
+.tableScroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 13px 15px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table th button {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.thumbnailLink {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--ivory-2);
+}
+
+.thumbnailLink img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noImage {
+  color: var(--gold-deep);
+  font-family: var(--font-display);
+  font-size: 17px;
+}
+
+.productName {
+  display: block;
+  color: var(--emerald-deep);
+  font-weight: 700;
+}
+
+.productName:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.slug {
+  display: block;
+  max-width: 260px;
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.amount {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.statusToggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+}
+
+.statusToggle:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination > div > span {
+  min-width: 50px;
+  color: var(--ink);
+  text-align: center;
+}
+
+.pagination button {
+  min-height: 36px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+
+.tableSkeleton,
+.skeletonHeading,
+.skeletonFilters,
+.skeletonTable {
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--ivory) 25%, var(--ivory-2) 50%, var(--ivory) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.tableSkeleton {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.inlineError {
+  margin: 12px 0;
+  color: #772f26;
+  font-size: 12px;
+}
+
+.skeletonHeading {
+  width: 45%;
+  height: 72px;
+}
+
+.skeletonFilters {
+  height: 88px;
+  margin: 26px 0 16px;
+}
+
+.skeletonTable {
+  height: 360px;
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 1023px) {
+  .filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .searchField {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 700px) {
+  .heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primaryLink {
+    align-self: flex-start;
+  }
+
+  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 14px;
+  }
+
+  .searchField {
+    grid-column: span 2;
+  }
+
+  .filters > button {
+    width: 100%;
+  }
+
+  .pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pagination > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 440px) {
+  .table th,
+  .table td {
+    padding-inline: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tableSkeleton,
+  .skeletonHeading,
+  .skeletonFilters,
+  .skeletonTable {
+    animation: none;
+  }
+}

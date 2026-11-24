@@ -1,0 +1,119 @@
+.page {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 24px 16px;
+  background:
+    radial-gradient(ellipse at 82% 10%, rgba(185, 146, 79, 0.13), transparent 34%),
+    #f3efe6;
+}
+
+.card {
+  width: min(100%, 440px);
+  padding: clamp(24px, 6vw, 42px);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ivory);
+  box-shadow: var(--shadow);
+}
+
+.brandMark {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 28px;
+  place-items: center;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  color: var(--gold-deep);
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+
+.card h1 {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 8vw, 38px);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.intro {
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.form {
+  display: grid;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.submit {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.mfaPanel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 12px;
+}
+
+.mfaPanel h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.secret,
+.uri {
+  overflow-wrap: anywhere;
+  color: var(--gold-deep);
+  font-size: 12px;
+}
+
+.recoveryCodes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  list-style: none;
+  font-family: monospace;
+}
+
+.error {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--rosewood);
+  color: var(--rosewood);
+  background: #f8e9e6;
+  font-size: 12px;
+}
+
+.securityNote {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--text-muted);
+  font-size: 10px;
+  text-align: center;
+}
+
+.toast {
+  position: fixed;
+  z-index: 400;
+  right: 20px;
+  bottom: 20px;
+}
+
+@media (max-width: 440px) {
+  .toast {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+}

@@ -1,0 +1,32 @@
+.state {
+  display: grid;
+  min-height: 45dvh;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--line);
+  border-top-color: var(--gold-deep);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.error {
+  display: grid;
+  min-height: 45dvh;
+  align-items: center;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2s; }
+}

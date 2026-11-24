@@ -1,4 +1,8 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import RevealOnScroll from '@/components/animation/RevealOnScroll';
+import { siteContent } from '@/lib/api';
 import styles from './InstagramGrid.module.css';
 
 interface InstaTile {
@@ -17,13 +21,34 @@ const TILES: InstaTile[] = [
 ];
 
 export default function InstagramGrid() {
+  const [tiles, setTiles] = useState(TILES);
+  const [instagramUrl, setInstagramUrl] = useState('https://instagram.com');
+
+  useEffect(() => {
+    let active = true;
+    siteContent.instagram().then((content) => {
+      if (active && content.images.length === 7 && content.link) {
+        setTiles(content.images.map((image) => ({
+          image: image.image_url,
+          alt: image.alt_text,
+        })));
+        setInstagramUrl(content.link);
+      }
+    }).catch((error: unknown) => {
+      console.error('Non è stato possibile caricare la griglia Instagram.', error);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <section className={styles.section} aria-label="Seguici su Instagram">
       <div className={styles.grid}>
-        {TILES.map((tile, i) => (
+        {tiles.map((tile, i) => (
           <RevealOnScroll key={i} delay={(i % 4) as 0 | 1 | 2 | 3}>
             <a
-              href="https://instagram.com"
+              href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.tile}
@@ -42,7 +67,7 @@ export default function InstagramGrid() {
         {/* Last tile is the CTA, not a photo — design.md §4.6 row 6 */}
         <RevealOnScroll delay={3}>
           <a
-            href="https://instagram.com"
+            href={instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.ctaTile}

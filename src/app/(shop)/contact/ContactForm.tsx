@@ -3,6 +3,8 @@
 import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CONTACT_EMAIL } from '@/lib/siteConfig';
+import { ApiError, enquiries } from '@/lib/api';
+import type { AtelierType, EnquiryTopic } from '@/lib/types';
 import styles from './ContactForm.module.css';
 
 const TOPICS = [
@@ -12,7 +14,7 @@ const TOPICS = [
   { value: 'altro', label: 'Altro' },
 ] as const;
 
-type Topic = (typeof TOPICS)[number]['value'];
+type Topic = EnquiryTopic;
 
 // Links such as /contact?oggetto=atelier-anelli pre-select the topic and message.
 const ATELIER_PREFILL: Record<string, string> = {
@@ -29,11 +31,13 @@ function topicFromParam(param: string | null): Topic {
   return match ? match.value : 'altro';
 }
 
-/**
- * Contact form. There is no backend endpoint for contact messages, so the form
- * opens the visitor's email client with the message pre-filled (mailto:).
- * To send through the API instead, replace the body of `handleSubmit`.
- */
+function atelierTypeFromParam(param: string | null): AtelierType | undefined {
+  const type = param?.startsWith('atelier-') ? param.slice('atelier-'.length) : '';
+  return type === 'anelli' || type === 'collane' || type === 'orecchini'
+    ? type
+    : undefined;
+}
+
 export default function ContactForm() {
   const params = useSearchParams();
   const oggetto = params.get('oggetto');
@@ -42,20 +46,45 @@ export default function ContactForm() {
   const [email, setEmail] = useState('');
   const [topic, setTopic] = useState<Topic>(topicFromParam(oggetto));
   const [message, setMessage] = useState(oggetto ? ATELIER_PREFILL[oggetto] ?? '' : '');
-  const [opened, setOpened] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent) => {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const topicLabel = TOPICS.find((t) => t.value === topic)?.label ?? 'Contatto';
-    const subject = `[GLORYBELLE] ${topicLabel}`;
-    const body = `${message}\n\n—\nNome: ${name}\nEmail: ${email}`;
-    window.location.href =
-      `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setOpened(true);
-  };
+    if (submitting) return;
+
+    const formData = new FormData(e.currentTarget);
+    const atelierType = topic === 'atelier' ? atelierTypeFromParam(oggetto) : undefined;
+    setSubmitting(true);
+    setSuccess(false);
+    setError(null);
+    try {
+      const website = String(formData.get('website') || '');
+      await enquiries.create({
+        name,
+        email,
+        topic,
+        message,
+        ...(atelierType ? { atelier_type: atelierType } : {}),
+        website,
+      });
+      setSuccess(true);
+    } catch (requestError) {
+      if (requestError instanceof ApiError && requestError.status === 429) {
+        setError('Hai inviato troppe richieste. Riprova tra qualche minuto.');
+      } else if (requestError instanceof ApiError && requestError.status === 400) {
+        setError('Controlla i dati inseriti: l’indirizzo email o il messaggio non sono validi.');
+      } else {
+        setError('Non siamo riusciti a inviare il messaggio. Puoi contattarci direttamente via email.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <form onSubmit={handleSubmit} className={styles.form} aria-busy={submitting}>
       <div className={styles.row}>
         <div className={styles.field}>
           <label htmlFor="contact-name" className={styles.label}>Nome</label>
@@ -63,6 +92,7 @@ export default function ContactForm() {
             id="contact-name"
             type="text"
             required
+            maxLength={150}
             autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -75,6 +105,7 @@ export default function ContactForm() {
             id="contact-email"
             type="email"
             required
+            maxLength={254}
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -103,21 +134,43 @@ export default function ContactForm() {
           id="contact-message"
           required
           rows={6}
+          maxLength={5000}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           className={`${styles.input} ${styles.textarea}`}
         />
       </div>
 
-      <button type="submit" className={`btn btn-primary ${styles.submit}`}>
-        Invia messaggio
+      <div className={styles.honeypot} aria-hidden="true">
+        <label htmlFor="contact-website">Lascia vuoto questo campo</label>
+        <input
+          id="contact-website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
+
+      <button
+        type="submit"
+        className={`btn btn-primary ${styles.submit}`}
+        disabled={submitting}
+      >
+        {submitting ? 'Invio in corso…' : 'Invia messaggio'}
       </button>
 
-      <p className={styles.hint} role="status">
-        {opened
-          ? <>Abbiamo aperto il tuo programma di posta con il messaggio pronto. Se non si è aperto, scrivici a <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</>
-          : 'Il messaggio si apre nel tuo programma di posta, pronto da inviare.'}
+      <p className={styles.hint} role="status" aria-live="polite">
+        {success
+          ? 'Grazie, abbiamo ricevuto il tuo messaggio. Ti risponderemo al più presto.'
+          : 'Ti risponderemo all’indirizzo email che hai indicato.'}
       </p>
+      {error && (
+        <p className={styles.error} role="alert">
+          {error}{' '}
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+        </p>
+      )}
     </form>
   );
 }

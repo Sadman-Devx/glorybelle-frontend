@@ -1,0 +1,89 @@
+.tableWrap {
+  width: 100%;
+}
+
+.scrollRegion {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.scrollRegion:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: -3px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table th button {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.table th button:focus-visible,
+.pageButtons button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.pageButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pageButtons button {
+  min-height: 36px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+
+.pageButtons span {
+  min-width: 42px;
+  color: var(--ink);
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pageButtons {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

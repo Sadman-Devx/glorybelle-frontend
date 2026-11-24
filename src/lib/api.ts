@@ -1,6 +1,8 @@
 import type {
   PaginatedResponse, Product, ProductListItem, Category, Cart, Order,
   User, Address, AuthTokens, WishlistItem, Review, PaymentIntent, FirstPurchaseDiscount,
+  EnquirySubmission, EnquirySubmissionResponse,
+  PublicHeroImage, PublicInstagramGrid, PublicTestimonial,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -106,8 +108,23 @@ export const auth = {
     apiFetch<FirstPurchaseDiscount>('/api/accounts/first-purchase-discount/'),
   // Endpoint path is an assumption — adjust if your backend names it differently.
   requestPasswordReset: (email: string) =>
-    apiFetch<void>('/api/accounts/password-reset/', {
+    apiFetch<void>('/api/accounts/password/reset/', {
       method: 'POST', body: JSON.stringify({ email }),
+    }),
+  confirmPasswordReset: (
+    uid: string,
+    token: string,
+    newPassword: string,
+    newPasswordConfirm: string,
+  ) =>
+    apiFetch<{ detail: string }>('/api/accounts/password/reset/confirm/', {
+      method: 'POST',
+      body: JSON.stringify({
+        uid,
+        token,
+        new_password: newPassword,
+        new_password_confirm: newPasswordConfirm,
+      }),
     }),
 };
 
@@ -128,4 +145,28 @@ export const newsletter = {
     apiFetch<{ status: string }>('/api/newsletter/subscribe/', {
       method: 'POST', body: JSON.stringify({ email }),
     }),
+};
+
+export const enquiries = {
+  create: (data: EnquirySubmission) =>
+    apiFetch<EnquirySubmissionResponse>('/api/enquiries/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+};
+
+export const siteContent = {
+  hero: async (): Promise<PublicHeroImage[]> => {
+    const response = await apiFetch<PaginatedResponse<PublicHeroImage>>(
+      '/api/site-content/hero/?page_size=100&ordering=sort_order',
+    );
+    return response.results;
+  },
+  instagram: () => apiFetch<PublicInstagramGrid>('/api/site-content/instagram/'),
+  testimonials: async (): Promise<PublicTestimonial[]> => {
+    const response = await apiFetch<PaginatedResponse<PublicTestimonial>>(
+      '/api/site-content/testimonials/?page_size=100',
+    );
+    return response.results;
+  },
 };
