@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { ApiError } from '@/lib/api';
 import styles from './page.module.css';
 
 export default function LoginPage() {
@@ -21,8 +22,15 @@ export default function LoginPage() {
     try {
       await login(email, password);
       router.push('/account');
-    } catch {
-      setError('Email o password non corretti.');
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 429) {
+        // The backend allows 10 login attempts per minute
+        setError('Troppi tentativi di accesso. Riprova tra un minuto.');
+      } else if (err instanceof ApiError && err.status === 401) {
+        setError('Email o password non corretti.');
+      } else {
+        setError('Impossibile accedere in questo momento. Riprova.');
+      }
     } finally {
       setLoading(false);
     }

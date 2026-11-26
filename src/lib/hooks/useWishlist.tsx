@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { wishlist as wishlistApi } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import type { WishlistItem } from '@/lib/types';
 
 interface WishlistContextType {
@@ -16,6 +17,8 @@ interface WishlistContextType {
 const WishlistContext = createContext<WishlistContextType | null>(null);
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [, setIsAuthenticated] = useState(false);
@@ -52,7 +55,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [refresh]);
+  }, [refresh, userId]); // re-run when the user logs in or out
 
   const toggle = useCallback(async (productId: number): Promise<boolean> => {
     if (!checkAuth()) {

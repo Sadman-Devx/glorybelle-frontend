@@ -2,17 +2,27 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import styles from './page.module.css';
 
 type Tab = 'orders' | 'addresses';
 
 export default function AccountPage() {
   const [activeTab, setActiveTab] = useState<Tab>('orders');
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();   // revokes the refresh token on the server, then clears local state
+    router.push('/');
+  };
 
   return (
     <div className={styles.page}>
       <div className="container">
         <h1 className={styles.heading}>Il Mio Account</h1>
+        <button type="button" className="btn btn-secondary" onClick={handleLogout}>Esci</button>
 
         <div className={styles.tabs}>
           <button

@@ -1,6 +1,6 @@
 import type {
   PaginatedResponse, Product, ProductListItem, Category, Cart, Order,
-  User, Address, AuthTokens, WishlistItem, Review, PaymentIntent, FirstPurchaseDiscount,
+  User, Address, AuthTokens, WishlistItem, Review, CheckoutResponse, FirstPurchaseDiscount,
   EnquirySubmission, EnquirySubmissionResponse,
   PublicHeroImage, PublicInstagramGrid, PublicTestimonial,
 } from './types';
@@ -22,6 +22,27 @@ class ApiError extends Error {
 }
 export { ApiError };
 
+/**
+ * Turn any thrown error into one human readable string.
+ * Understands both backend error shapes:
+ *   { error: { code, detail } }                 (custom exception handler)
+ *   { field: ["message", ...], ... }            (DRF validation errors)
+ */
+export function apiErrorMessage(err: unknown, fallback = 'Si è verificato un errore. Riprova.'): string {
+  if (!(err instanceof ApiError)) return fallback;
+  const data = err.data as Record<string, unknown> | null;
+  if (!data || typeof data !== 'object') return fallback;
+  const inner = (data as { error?: { detail?: unknown } }).error;
+  if (inner && inner.detail !== undefined) {
+    return Array.isArray(inner.detail) ? String(inner.detail[0]) : String(inner.detail);
+  }
+  const firstKey = Object.keys(data)[0];
+  if (!firstKey) return fallback;
+  const value = data[firstKey];
+  const text = Array.isArray(value) ? String(value[0]) : String(value);
+  return firstKey === 'detail' ? text : `${firstKey}: ${text}`;
+}
+
 async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = API_BASE + endpoint;
   const headers: Record<string, string> = {
@@ -29,6 +50,8 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     ...(options.headers as Record<string, string>),
   };
   if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+  // credentials: 'include' carries the Django session cookie, which is how the
+  // backend recognises a guest's cart.
   const res = await fetch(url, { ...options, headers, credentials: 'include' });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
@@ -38,13 +61,17 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   return res.json();
 }
 
+/** DRF may or may not paginate a list endpoint — always hand the UI a plain array. */
+function unwrap<T>(res: T[] | PaginatedResponse<T>): T[] {
+  return Array.isArray(res) ? res : res.results ?? [];
+}
+
 export const catalog = {
-  // DRF applies DEFAULT_PAGINATION_CLASS globally (config/settings/base.py:180),
+  // DRF applies DEFAULT_PAGINATION_CLASS globally (config/settings/base.py),
   // so /api/categories/ returns { count, next, previous, results } — not a bare array.
-  // Unwrap to plain Category[] so the UI can call .find() / .map() safely.
   categories: async (): Promise<Category[]> => {
     const res = await apiFetch<Category[] | PaginatedResponse<Category>>('/api/categories/');
-    return Array.isArray(res) ? res : (res as PaginatedResponse<Category>).results ?? [];
+    return unwrap(res);
   },
   products: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
@@ -53,60 +80,149 @@ export const catalog = {
   product: (slug: string) => apiFetch<Product>(`/api/products/${slug}/`),
 };
 
+/* ---------------------------------------------------------------------------
+   Cart
+   Backend: /api/cart/, /api/cart/items/, /api/cart/items/{id}/, /api/cart/merge/
+   The backend nests the variant under `variant_detail` and puts product_name /
+   product_slug / primary_image on the item. The UI components expect everything
+   under `item.variant`, so the response is normalised here (one place) instead
+   of editing every component.
+   ------------------------------------------------------------------------- */
+interface RawCartItem {
+  id: number;
+  variant: number;
+  variant_detail: {
+    id: number;
+    metal: string;
+    metal_display: string;
+    size: string;
+    sku: string;
+    price: string;
+    available_stock: number;
+    is_active: boolean;
+  };
+  product_name: string;
+  product_slug: string;
+  quantity: number;
+  line_total: string;
+  primary_image: string | null;
+}
+interface RawCart {
+  id: number;
+  items: RawCartItem[];
+  total: string;
+  item_count: number;
+}
+
+function normalizeCart(raw: RawCart): Cart {
+  return {
+    id: raw.id,
+    total: raw.total,
+    item_count: raw.item_count,
+    items: (raw.items ?? []).map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      line_total: item.line_total,
+      reservation_expires_at: '',
+      variant: {
+        id: item.variant_detail.id,
+        metal: item.variant_detail.metal as Cart['items'][number]['variant']['metal'],
+        metal_display: item.variant_detail.metal_display,
+        size: item.variant_detail.size,
+        sku: item.variant_detail.sku,
+        price: item.variant_detail.price,
+        price_override: null,
+        stock_quantity: item.variant_detail.available_stock,
+        available_stock: item.variant_detail.available_stock,
+        is_active: item.variant_detail.is_active,
+        product_name: item.product_name,
+        product_slug: item.product_slug,
+        image_url: item.primary_image ?? undefined,
+      },
+    })),
+  };
+}
+
 export const cart = {
-  get: (sessionKey?: string) => {
-    const qs = sessionKey ? `?session_key=${sessionKey}` : '';
-    return apiFetch<Cart>(`/api/cart/${qs}`);
-  },
-  addItem: (variantId: number, quantity: number, sessionKey?: string) =>
-    apiFetch<Cart>('/api/cart/add/', {
+  get: async (): Promise<Cart> => normalizeCart(await apiFetch<RawCart>('/api/cart/')),
+  addItem: async (variantId: number, quantity: number): Promise<Cart> =>
+    normalizeCart(await apiFetch<RawCart>('/api/cart/items/', {
       method: 'POST',
-      body: JSON.stringify({ variant_id: variantId, quantity, session_key: sessionKey }),
-    }),
-  updateItem: (itemId: number, quantity: number) =>
-    apiFetch<Cart>(`/api/cart/update/${itemId}/`, {
-      method: 'PATCH', body: JSON.stringify({ quantity }),
-    }),
-  removeItem: (itemId: number) =>
-    apiFetch<Cart>(`/api/cart/remove/${itemId}/`, { method: 'DELETE' }),
-  merge: (sessionKey: string) =>
-    apiFetch<Cart>('/api/cart/merge/', {
-      method: 'POST', body: JSON.stringify({ session_key: sessionKey }),
-    }),
+      body: JSON.stringify({ variant_id: variantId, quantity }),
+    })),
+  updateItem: async (itemId: number, quantity: number): Promise<Cart> =>
+    normalizeCart(await apiFetch<RawCart>(`/api/cart/items/${itemId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({ quantity }),
+    })),
+  removeItem: async (itemId: number): Promise<Cart> =>
+    normalizeCart(await apiFetch<RawCart>(`/api/cart/items/${itemId}/`, { method: 'DELETE' })),
+  clear: async (): Promise<Cart> =>
+    normalizeCart(await apiFetch<RawCart>('/api/cart/', { method: 'DELETE' })),
+  /** Authenticated only. The guest cart is found via the session cookie. */
+  merge: async (): Promise<Cart> =>
+    normalizeCart(await apiFetch<RawCart>('/api/cart/merge/', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })),
 };
+
+/* ---------------------------------------------------------------------------
+   Orders / checkout
+   One call, POST /api/checkout/, creates the order AND the Stripe PaymentIntent
+   and returns { order, client_secret, payment_intent_id }.
+   ------------------------------------------------------------------------- */
+export interface CheckoutPayload {
+  email: string;
+  idempotency_key?: string;
+  notes?: string;
+  shipping_address: {
+    first_name: string;
+    last_name: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    province: string;
+    postal_code: string;
+    country: string;
+    phone?: string;
+  };
+}
 
 export const orders = {
-  create: (data: Record<string, unknown>) =>
-    apiFetch<Order>('/api/orders/create/', { method: 'POST', body: JSON.stringify(data) }),
-  // DRF pagination may wrap the list in { results } — unwrap to a plain array.
-  list: async (): Promise<Order[]> => {
-    const res = await apiFetch<Order[] | PaginatedResponse<Order>>('/api/orders/');
-    return Array.isArray(res) ? res : (res as PaginatedResponse<Order>).results ?? [];
-  },
+  checkout: (data: CheckoutPayload) =>
+    apiFetch<CheckoutResponse>('/api/checkout/', { method: 'POST', body: JSON.stringify(data) }),
+  list: async (): Promise<Order[]> =>
+    unwrap(await apiFetch<Order[] | PaginatedResponse<Order>>('/api/orders/')),
   detail: (orderNumber: string) => apiFetch<Order>(`/api/orders/${orderNumber}/`),
-};
-
-export const payments = {
-  createIntent: (orderId: number) =>
-    apiFetch<PaymentIntent>('/api/payments/create-intent/', {
-      method: 'POST', body: JSON.stringify({ order_id: orderId }),
+  /** For guests (no account): order number + the email used at checkout. */
+  guestLookup: (orderNumber: string, email: string) =>
+    apiFetch<Order>('/api/orders/lookup/', {
+      method: 'POST',
+      body: JSON.stringify({ order_number: orderNumber, email }),
     }),
 };
 
 export const auth = {
+  // The backend accepts { email | username, password } on this endpoint.
   login: (email: string, password: string) =>
     apiFetch<AuthTokens>('/api/accounts/login/', {
       method: 'POST', body: JSON.stringify({ email, password }),
     }),
   register: (data: Record<string, string>) =>
-    apiFetch<AuthTokens>('/api/accounts/register/', { method: 'POST', body: JSON.stringify(data) }),
+    apiFetch<{ user: User; tokens: AuthTokens }>('/api/accounts/register/', {
+      method: 'POST', body: JSON.stringify(data),
+    }),
+  // Needs the Bearer token, otherwise the backend answers 401 and never revokes the refresh token.
+  logout: (refresh: string) =>
+    apiFetch<void>('/api/accounts/logout/', { method: 'POST', body: JSON.stringify({ refresh }) }),
   me: () => apiFetch<User>('/api/accounts/me/'),
-  addresses: () => apiFetch<Address[]>('/api/accounts/addresses/'),
-  createAddress: (data: Omit<Address, 'id'>) =>
+  addresses: async (): Promise<Address[]> =>
+    unwrap(await apiFetch<Address[] | PaginatedResponse<Address>>('/api/accounts/addresses/')),
+  createAddress: (data: Omit<Address, 'id' | 'created_at'>) =>
     apiFetch<Address>('/api/accounts/addresses/', { method: 'POST', body: JSON.stringify(data) }),
   firstPurchaseDiscount: () =>
     apiFetch<FirstPurchaseDiscount>('/api/accounts/first-purchase-discount/'),
-  // Endpoint path is an assumption — adjust if your backend names it differently.
   requestPasswordReset: (email: string) =>
     apiFetch<void>('/api/accounts/password/reset/', {
       method: 'POST', body: JSON.stringify({ email }),
@@ -128,21 +244,62 @@ export const auth = {
     }),
 };
 
+/* Wishlist — backend returns { id, product: <id>, product_detail: {...} } */
+interface RawWishlistItem {
+  id: number;
+  product: number;
+  product_detail: ProductListItem;
+  created_at: string;
+}
+
 export const wishlist = {
-  list: () => apiFetch<WishlistItem[]>('/api/wishlist/'),
+  list: async (): Promise<WishlistItem[]> => {
+    const rows = unwrap(await apiFetch<RawWishlistItem[] | PaginatedResponse<RawWishlistItem>>('/api/wishlist/'));
+    return rows.map((row) => ({ id: row.id, created_at: row.created_at, product: row.product_detail }));
+  },
   toggle: (productId: number) =>
-    apiFetch<{ status: string }>(`/api/wishlist/toggle/${productId}/`, { method: 'POST' }),
+    apiFetch<{ wishlisted: boolean; product_id: number }>('/api/wishlist/toggle/', {
+      method: 'POST', body: JSON.stringify({ product_id: productId }),
+    }),
 };
 
+/* Reviews — nested under the product slug on the backend */
+interface RawReview {
+  id: number;
+  username: string;
+  first_name: string;
+  rating: Review['rating'];
+  title: string;
+  body: string;
+  created_at: string;
+}
+const toReview = (r: RawReview): Review => ({
+  id: r.id,
+  user_name: r.first_name || r.username,
+  rating: r.rating,
+  title: r.title,
+  body: r.body,
+  created_at: r.created_at,
+});
+
 export const reviews = {
-  list: (productSlug: string) => apiFetch<Review[]>(`/api/reviews/?product=${productSlug}`),
-  create: (data: { product: number; rating: number; title: string; body: string }) =>
-    apiFetch<Review>('/api/reviews/', { method: 'POST', body: JSON.stringify(data) }),
+  list: async (productSlug: string): Promise<Review[]> =>
+    unwrap(await apiFetch<RawReview[] | PaginatedResponse<RawReview>>(`/api/products/${productSlug}/reviews/`)).map(toReview),
+  create: async (
+    productSlug: string,
+    data: { rating: number; title: string; body: string },
+  ): Promise<Review> => {
+    const res = await apiFetch<{ message: string; review: RawReview }>(
+      `/api/products/${productSlug}/reviews/create/`,
+      { method: 'POST', body: JSON.stringify(data) },
+    );
+    return toReview(res.review);
+  },
 };
 
 export const newsletter = {
   subscribe: (email: string) =>
-    apiFetch<{ status: string }>('/api/newsletter/subscribe/', {
+    apiFetch<{ message: string }>('/api/newsletter/subscribe/', {
       method: 'POST', body: JSON.stringify({ email }),
     }),
 };

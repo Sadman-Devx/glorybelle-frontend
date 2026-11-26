@@ -48,6 +48,7 @@ export default function RegisterPage() {
         username: form.username,
         email: form.email,
         password: form.password,
+        password_confirm: form.passwordConfirm,
         first_name: form.first_name,
         last_name: form.last_name,
         birth_date: form.birth_date,

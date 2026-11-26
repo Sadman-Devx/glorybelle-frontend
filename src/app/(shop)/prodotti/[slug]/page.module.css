@@ -32,6 +32,9 @@
 
 /* Image gallery */
 .mainImage {
+  /* next/image `fill` is position:absolute — without a positioned parent the photo
+     covers the whole page and swallows every click (incl. "Aggiungi al Carrello"). */
+  position: relative;
   aspect-ratio: 1 / 1;
   border-radius: var(--radius-testimonial);
   overflow: hidden;

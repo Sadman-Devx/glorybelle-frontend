@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { username: string; email: string; password: string; first_name?: string; last_name?: string; birth_date?: string }) => Promise<void>;
+  register: (data: { username: string; email: string; password: string; first_name?: string; last_name?: string; birth_date?: string; password_confirm: string }) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(me);
   }, []);
 
-  const register = useCallback(async (data: { username: string; email: string; password: string; first_name?: string; last_name?: string; birth_date?: string }) => {
+  const register = useCallback(async (data: { username: string; email: string; password: string; first_name?: string; last_name?: string; birth_date?: string; password_confirm: string }) => {
     await authApi.register(data);
     // After register, auto-login
     await login(data.email, data.password);
@@ -63,11 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
     if (refresh) {
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/accounts/logout/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refresh }),
-        });
+        // Goes through apiFetch so the Bearer token is attached — the endpoint
+        // requires authentication, otherwise the refresh token is never revoked.
+        await authApi.logout(refresh);
       } catch {
         // Logout API call failed — clear tokens locally anyway
       }

@@ -34,6 +34,7 @@ export default function BestsellerCarousel() {
       {products.map((product) => (
         <ProductCard
           key={product.id}
+          productId={product.id}
           name={product.name}
           slug={product.slug}
           price={product.min_price || product.base_price}

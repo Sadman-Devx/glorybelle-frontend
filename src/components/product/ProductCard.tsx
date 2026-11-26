@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useWishlist } from '@/lib/hooks/useWishlist';
 import styles from './ProductCard.module.css';
 
 interface ProductCardProps {
+  /** Product id: when given (and no onWishlistToggle), the heart is wired to the wishlist itself. */
+  productId?: number;
   name: string;
   slug: string;
   price: string;
@@ -20,9 +23,16 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({
-  name, slug, price, primaryImage, hoverImage, metalDisplay,
-  isWishlisted = false, onWishlistToggle, onQuickView, compact = false,
+  productId, name, slug, price, primaryImage, hoverImage, metalDisplay,
+  isWishlisted: isWishlistedProp = false, onWishlistToggle, onQuickView, compact = false,
 }: ProductCardProps) {
+  const wishlist = useWishlist();
+  const isWishlisted = productId !== undefined ? wishlist.productIds.has(productId) : isWishlistedProp;
+  const handleWishlist = () => {
+    if (onWishlistToggle) onWishlistToggle();
+    else if (productId !== undefined) void wishlist.toggle(productId);
+  };
+
   // Track which image is "pinned" by the user clicking a dot.
   // On desktop hover, the card automatically swaps to image 2 (demo HTML behavior).
   // On mobile (no hover), the dots let the user manually toggle.
@@ -78,7 +88,7 @@ export default function ProductCard({
 
         <button
           className={`${styles.wishlistBtn} ${isWishlisted ? styles.wishlisted : ''}`}
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWishlistToggle?.(); }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleWishlist(); }}
           aria-label={isWishlisted ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.6">

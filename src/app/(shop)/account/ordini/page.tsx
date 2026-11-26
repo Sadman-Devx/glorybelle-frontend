@@ -10,9 +10,11 @@ import styles from './page.module.css';
 const STATUS_LABELS: Record<Order['status'], string> = {
   pending: 'In attesa',
   paid: 'Pagato',
+  processing: 'In lavorazione',
   shipped: 'Spedito',
   delivered: 'Consegnato',
   cancelled: 'Annullato',
+  refunded: 'Rimborsato',
 };
 
 export default function OrdersPage() {
@@ -65,7 +67,8 @@ export default function OrdersPage() {
         {orders && orders.length > 0 && (
           <ul className={styles.list}>
             {orders.map((order) => {
-              const count = order.items.reduce((sum, item) => sum + item.quantity, 0);
+              // The list endpoint returns item_count (no nested items).
+              const count = order.item_count ?? (order.items ?? []).reduce((sum, item) => sum + item.quantity, 0);
               return (
                 <li key={order.id}>
                   <Link href={`/account/ordini/${order.order_number}`} className={styles.order}>

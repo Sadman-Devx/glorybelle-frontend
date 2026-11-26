@@ -1,17 +1,47 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { orders } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 import type { Order } from '@/lib/types';
 import styles from './page.module.css';
 
 function ConfirmContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order');
+  const { user, loading: authLoading } = useAuth();
+  const { clearCart } = useCart();
   const [order, setOrder] = useState<Order | null>(null);
   const [polling, setPolling] = useState(true);
+  const cartClearedRef = useRef(false);
+
+  // The email entered at checkout was stored in sessionStorage by the payment
+  // form. Guests have no account, so order number + email is their proof of
+  // ownership for POST /api/orders/lookup/.
+  const readLastOrder = (): { order_number: string; email: string } | null => {
+    try {
+      const raw = sessionStorage.getItem('gb_last_order');
+      const parsed = raw ? JSON.parse(raw) : null;
+      return parsed && parsed.order_number === orderNumber ? parsed : null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Empty the cart once the customer has landed here after paying. Done here
+  // (not in the payment form) so it cannot race with the checkout page's
+  // "empty cart -> back to shop" redirect.
+  useEffect(() => {
+    if (authLoading || !orderNumber || cartClearedRef.current) return;
+    if (readLastOrder()) {
+      cartClearedRef.current = true;
+      void clearCart();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- readLastOrder only reads sessionStorage
+  }, [authLoading, orderNumber, clearCart]);
 
   // Poll the backend order status — the Stripe webhook (not the client redirect)
   // is the source of truth for payment success (architecture.md §1.3).
@@ -23,13 +53,29 @@ function ConfirmContent() {
       setPolling(false);
       return;
     }
+    if (authLoading) return;
+
+    const guest = readLastOrder();
+    if (!user && !guest) {
+      // Neither logged in nor the browser that placed the order: we cannot read
+      // it. The generic "processing / check your email" message is shown.
+      setPolling(false);
+      return;
+    }
+    const fetchOrder = () => (user
+      ? orders.detail(orderNumber)
+      : orders.guestLookup(orderNumber, guest!.email));
+
     let attempts = 0;
     const maxAttempts = 10;
-    const interval = setInterval(async () => {
+    let stopped = false;
+
+    const tick = async () => {
       attempts++;
       try {
-        const data = await orders.detail(orderNumber);
-        if (data.status === 'paid' || data.status === 'shipped' || data.status === 'delivered') {
+        const data = await fetchOrder();
+        if (stopped) return;
+        if (data.status === 'paid' || data.status === 'processing' || data.status === 'shipped' || data.status === 'delivered') {
           setOrder(data);
           setPolling(false);
           clearInterval(interval);
@@ -40,14 +86,22 @@ function ConfirmContent() {
           clearInterval(interval);
         }
       } catch {
-        if (attempts >= maxAttempts) {
+        if (!stopped && attempts >= maxAttempts) {
           setPolling(false);
           clearInterval(interval);
         }
       }
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [orderNumber]);
+    };
+
+    // (tick only touches `interval` after an await, by which time it is assigned)
+    const interval = setInterval(tick, 2000);
+    void tick();
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- readLastOrder only reads sessionStorage
+  }, [orderNumber, user, authLoading]);
 
   if (!orderNumber) {
     return (
@@ -88,7 +142,7 @@ function ConfirmContent() {
     );
   }
 
-  const isPaid = order && (order.status === 'paid' || order.status === 'shipped' || order.status === 'delivered');
+  const isPaid = order && (order.status === 'paid' || order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered');
 
   return (
     <div className={`section ${styles.confirm}`}>

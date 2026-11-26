@@ -122,6 +122,7 @@ export default function ProductGrid({
       {products.map((product, i) => (
         <Fragment key={product.id}>
           <ProductCard
+            productId={product.id}
             name={product.name}
             slug={product.slug}
             price={product.min_price || product.base_price}

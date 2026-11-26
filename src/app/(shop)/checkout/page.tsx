@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useCart } from '@/contexts/CartContext';
-import { orders, payments } from '@/lib/api';
-import { getStripe } from '@/lib/stripe';
+import StripeCheckoutForm from '@/components/stripe/StripeCheckoutForm';
 import styles from './page.module.css';
 
 interface CheckoutForm {
@@ -29,97 +28,20 @@ export default function CheckoutPage() {
   const { cart } = useCart();
   const router = useRouter();
   const [formData, setFormData] = useState<CheckoutForm>(EMPTY_FORM);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const items = cart?.items || [];
   const total = cart?.total || '0.00';
 
-  // Redirect to shop if cart is empty
+  // Redirect to shop if the cart is empty — but only once it has LOADED
+  // (cart is null while loading, which previously bounced every page refresh).
   useEffect(() => {
-    if (items.length === 0) {
+    if (cart && cart.items.length === 0) {
       router.push('/prodotti');
     }
-  }, [items.length, router]);
+  }, [cart, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (items.length === 0) return;
-
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      // Step 0: make sure the payment CAN be taken before creating anything on the
-      // backend — otherwise a failed attempt leaves an orphan "pending" order.
-      const stripe = await getStripe();
-      if (!stripe) {
-        setError('Stripe non è configurato. Impossibile procedere al pagamento.');
-        setSubmitting(false);
-        return;
-      }
-      const cardElement = stripe.elements().getElement('card');
-      if (!cardElement) {
-        // The card field is not mounted on this page yet (see the TODO in the Payment
-        // section below), so no payment can be made. Nothing has been created or charged.
-        setError('Il pagamento con carta non è ancora attivo. Nessun ordine è stato creato e nessun importo è stato addebitato.');
-        setSubmitting(false);
-        return;
-      }
-
-      // Step 1: create Order on the backend (status=pending)
-      // Backend resolves prices from ProductVariant server-side — never trust client total
-      const order = await orders.create({
-        email: formData.email,
-        shipping_address: {
-          recipient_name: `${formData.firstName} ${formData.lastName}`,
-          street_address: formData.address,
-          city: formData.city,
-          province: formData.province,
-          postal_code: formData.postalCode,
-          country: formData.country,
-          phone: formData.phone,
-        },
-      });
-
-      // Step 2: create Stripe PaymentIntent
-      const intent = await payments.createIntent(order.id);
-
-      // Step 3: confirm payment with Stripe
-      const { error: stripeError } = await stripe.confirmCardPayment(intent.client_secret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: {
-            name: `${formData.firstName} ${formData.lastName}`,
-            email: formData.email,
-            address: {
-              line1: formData.address,
-              city: formData.city,
-              state: formData.province,
-              postal_code: formData.postalCode,
-              country: formData.country,
-            },
-          },
-        },
-      });
-
-      if (stripeError) {
-        setError(stripeError.message || 'Errore nel pagamento');
-        setSubmitting(false);
-        return;
-      }
-
-      // Step 4: redirect to confirmation
-      // The backend webhook (not this redirect) is the source of truth for payment success
-      router.push(`/checkout/conferma?order=${order.order_number}`);
-    } catch (err: unknown) {
-      setError(err instanceof Error && err.message ? err.message : 'Errore durante il checkout. Riprova.');
-      setSubmitting(false);
-    }
   };
 
   return (
@@ -128,13 +50,7 @@ export default function CheckoutPage() {
         <div className={styles.formSection}>
           <h1 className={styles.title}>Checkout</h1>
 
-          {error && (
-            <div className={styles.errorBanner} role="alert">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.form}>
             {/* Contact */}
             <div className={styles.formGroup}>
               <h3 className={styles.sectionTitle}>Contatto</h3>
@@ -167,31 +83,13 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment — Stripe Elements placeholder.
-                Replace with actual <CardElement /> when Stripe Elements UI is wired. */}
+            {/* Payment — Stripe Elements card field + submit button.
+                Order and PaymentIntent are created in a single POST /api/checkout/. */}
             <div className={styles.formGroup}>
               <h3 className={styles.sectionTitle}>Pagamento</h3>
-              <div className={styles.stripeBox}>
-                <p className={styles.stripeNote}>
-                  Pagamento sicuro tramite Stripe. I dati della tua carta non vengono mai
-                  archiviati sui nostri server.
-                </p>
-                {/* TODO: mount <CardElement /> from @stripe/react-stripe-js here.
-                    For now we rely on stripe.confirmCardPayment with a payment_method
-                    that needs to be created from the card form. */}
-              </div>
+              <StripeCheckoutForm formData={formData} />
             </div>
-
-            <button
-              type="submit"
-              className={`btn btn-primary ${styles.submitBtn}`}
-              disabled={submitting || items.length === 0}
-            >
-              {submitting
-                ? 'Elaborazione…'
-                : `Completa Ordine — EUR ${parseFloat(total).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-            </button>
-          </form>
+          </div>
         </div>
 
         {/* Order summary sidebar */}

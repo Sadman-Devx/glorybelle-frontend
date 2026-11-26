@@ -149,7 +149,7 @@ export interface OrderItem {
 export interface Order {
   id: number;
   order_number: string;
-  status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
   total: string;
   email: string;
   items: OrderItem[];
@@ -161,6 +161,11 @@ export interface Order {
   created_at: string;
   // Present when the backend serializer returns the detailed order shape
   status_display?: string;
+  /** The order LIST endpoint returns item_count instead of items. */
+  item_count?: number;
+  discount_percent?: string;
+  discount_amount?: string;
+  has_discount?: boolean;
   subtotal?: string;
   shipping_cost?: string;
   shipping_first_name?: string;
@@ -181,15 +186,16 @@ export interface User {
 
 export interface Address {
   id: number;
-  label: string;
-  recipient_name: string;
-  street_address: string;
+  first_name: string;
+  last_name: string;
+  line1: string;
+  line2: string;
   city: string;
   province: string;
   postal_code: string;
   country: string;
-  phone: string;
   is_default: boolean;
+  created_at: string;
 }
 
 export interface AuthTokens {
@@ -218,9 +224,12 @@ export interface Review {
 
 // ── Payments ──
 
-export interface PaymentIntent {
+/** Response of POST /api/checkout/ — order + Stripe PaymentIntent in one call. */
+export interface CheckoutResponse {
+  order: Order;
   client_secret: string;
   payment_intent_id: string;
+  idempotent_replay?: boolean;
 }
 
 export interface FirstPurchaseDiscount {

@@ -10,6 +10,15 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   use: {
     baseURL,
+    // Optional: point at a pre-installed Chromium (CI images, offline machines).
+    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
+      ? {
+          launchOptions: {
+            executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          },
+        }
+      : {}),
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
