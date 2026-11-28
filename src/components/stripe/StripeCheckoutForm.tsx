@@ -2,11 +2,12 @@
 
 import { Elements, CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import type { Stripe } from '@stripe/stripe-js';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 import { orders, apiErrorMessage } from '@/lib/api';
 import { getStripe } from '@/lib/stripe';
+import type { Cart } from '@/lib/types';
 import styles from './StripeCheckoutForm.module.css';
 
 interface CheckoutFormProps {
@@ -23,6 +24,53 @@ interface CheckoutFormProps {
   };
 }
 
+const CHECKOUT_ATTEMPT_STORAGE_KEY = 'gb_checkout_attempt';
+
+interface StoredCheckoutAttempt {
+  cartFingerprint: string;
+  fingerprint: string;
+  idempotencyKey: string;
+}
+
+function cartFingerprint(items: Cart['items']): string {
+  return JSON.stringify(
+    items
+      .map((item) => ({
+        variant_id: item.variant.id,
+        quantity: item.quantity,
+        unit_price: item.variant.price,
+      }))
+      .sort((a, b) => a.variant_id - b.variant_id),
+  );
+}
+
+async function checkoutFingerprint(
+  items: Cart['items'],
+  formData: CheckoutFormProps['formData'],
+): Promise<string> {
+  const content = JSON.stringify({
+    email: formData.email.trim().toLowerCase(),
+    address: {
+      first_name: formData.firstName.trim(),
+      last_name: formData.lastName.trim(),
+      line1: formData.address.trim(),
+      city: formData.city.trim(),
+      province: formData.province.trim(),
+      postal_code: formData.postalCode.trim(),
+      country: formData.country,
+    },
+    items: items
+      .map((item) => ({
+        variant_id: item.variant.id,
+        quantity: item.quantity,
+        unit_price: item.variant.price,
+      }))
+      .sort((a, b) => a.variant_id - b.variant_id),
+  });
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(content));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 function CheckoutForm({ formData }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -30,14 +78,85 @@ function CheckoutForm({ formData }: CheckoutFormProps) {
   const { cart } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const submittingRef = useRef(false);
+  const checkoutAttemptRef = useRef<StoredCheckoutAttempt | null>(null);
 
   const items = cart?.items || [];
   // What is really charged: the cart total AFTER the automatic welcome discount
   const total = cart?.total_after_discount ?? cart?.total ?? '0.00';
+  const currentCartFingerprint = cartFingerprint(items);
+  const cartLoaded = cart !== null;
+
+  useEffect(() => {
+    if (!cartLoaded) return;
+    if (checkoutAttemptRef.current?.cartFingerprint !== currentCartFingerprint) {
+      checkoutAttemptRef.current = null;
+    }
+    try {
+      const stored = sessionStorage.getItem(CHECKOUT_ATTEMPT_STORAGE_KEY);
+      if (stored) {
+        const attempt = JSON.parse(stored) as StoredCheckoutAttempt;
+        if (attempt.cartFingerprint !== currentCartFingerprint) {
+          sessionStorage.removeItem(CHECKOUT_ATTEMPT_STORAGE_KEY);
+        }
+      }
+    } catch {
+      // The in-memory key still protects retries while this checkout page remains open.
+    }
+  }, [cartLoaded, currentCartFingerprint]);
+
+  const getIdempotencyKey = async (): Promise<string> => {
+    const fingerprint = await checkoutFingerprint(items, formData);
+    if (
+      checkoutAttemptRef.current?.cartFingerprint === currentCartFingerprint
+      && checkoutAttemptRef.current.fingerprint === fingerprint
+    ) {
+      return checkoutAttemptRef.current.idempotencyKey;
+    }
+
+    try {
+      const stored = sessionStorage.getItem(CHECKOUT_ATTEMPT_STORAGE_KEY);
+      if (stored) {
+        const attempt = JSON.parse(stored) as StoredCheckoutAttempt;
+        if (
+          attempt.cartFingerprint === currentCartFingerprint
+          && attempt.fingerprint === fingerprint
+          && typeof attempt.idempotencyKey === 'string'
+        ) {
+          checkoutAttemptRef.current = attempt;
+          return attempt.idempotencyKey;
+        }
+      }
+    } catch {
+      // Fall back to an in-memory key if sessionStorage is unavailable.
+    }
+
+    const attempt = {
+      cartFingerprint: currentCartFingerprint,
+      fingerprint,
+      idempotencyKey: crypto.randomUUID(),
+    };
+    checkoutAttemptRef.current = attempt;
+    try {
+      sessionStorage.setItem(CHECKOUT_ATTEMPT_STORAGE_KEY, JSON.stringify(attempt));
+    } catch {
+      // Keep the key in memory so retries on this page reuse it.
+    }
+    return attempt.idempotencyKey;
+  };
+
+  const clearCheckoutAttempt = () => {
+    checkoutAttemptRef.current = null;
+    try {
+      sessionStorage.removeItem(CHECKOUT_ATTEMPT_STORAGE_KEY);
+    } catch {
+      // Payment success must still proceed if browser storage is unavailable.
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!stripe || !elements || items.length === 0) return;
+    if (!stripe || !elements || items.length === 0 || submittingRef.current) return;
 
     // Basic client-side validation (the shipping fields live in the parent page,
     // outside this <form>, so the browser's `required` checks do not cover them).
@@ -48,8 +167,10 @@ function CheckoutForm({ formData }: CheckoutFormProps) {
       return;
     }
 
+    submittingRef.current = true;
     setSubmitting(true);
     setError(null);
+    let redirecting = false;
 
     try {
       const cardElement = elements.getElement(CardElement);
@@ -61,7 +182,7 @@ function CheckoutForm({ formData }: CheckoutFormProps) {
       // Prices are resolved server-side — never trust a client total.
       const { order, client_secret: clientSecret } = await orders.checkout({
         email: formData.email.trim(),
-        idempotency_key: crypto.randomUUID(),  // P1 fix #8 — idempotent checkout
+        idempotency_key: await getIdempotencyKey(),
         shipping_address: {
           first_name: formData.firstName.trim(),
           last_name: formData.lastName.trim(),
@@ -97,7 +218,6 @@ function CheckoutForm({ formData }: CheckoutFormProps) {
 
       if (stripeError) {
         setError(stripeError.message || 'Errore nel pagamento.');
-        setSubmitting(false);
         return;
       }
 
@@ -115,11 +235,17 @@ function CheckoutForm({ formData }: CheckoutFormProps) {
       // Status may be 'succeeded' or 'processing' — /conferma polls the backend,
       // because the Stripe webhook (not this redirect) is the source of truth.
       if (paymentIntent) {
+        if (paymentIntent.status === 'succeeded') clearCheckoutAttempt();
+        redirecting = true;
         router.push(`/checkout/conferma?order=${order.order_number}`);
       }
     } catch (err) {
       setError(apiErrorMessage(err, 'Errore durante il checkout. Riprova.'));
-      setSubmitting(false);
+    } finally {
+      if (!redirecting) {
+        submittingRef.current = false;
+        setSubmitting(false);
+      }
     }
   };
 
