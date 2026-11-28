@@ -109,8 +109,9 @@ async function registerUser(request: APIRequestContext) {
   const res = await request.post(`${API}/api/accounts/register/`, {
     data: { ...user, password: PASSWORD, password_confirm: PASSWORD, birth_date: '1990-05-05', first_name: 'E2E' },
   });
-  expect(res.status(), await res.text()).toBe(201);
-  return user;
+  const body = await res.json() as { tokens: { access: string; refresh: string } };
+  expect(res.status(), JSON.stringify(body)).toBe(201);
+  return { ...user, tokens: body.tokens };
 }
 
 async function addToCartViaUi(page: Page, product: Pick) {
@@ -320,6 +321,73 @@ test.describe('newsletter unsubscribe link', () => {
 
 
 test.describe('account', () => {
+  test('expired access token refreshes silently across tabs and account actions succeed', async ({ page, context, request }) => {
+    const user = await registerUser(request);
+    await context.addInitScript((tokens) => {
+      if (!localStorage.getItem('gb_access_token')) {
+        localStorage.setItem('gb_access_token', tokens.access);
+        localStorage.setItem('gb_refresh_token', tokens.refresh);
+      }
+    }, user.tokens);
+    await page.goto('/account/ordini');
+    await expect(page.getByRole('heading', { name: 'I miei ordini' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Nessun ordine' })).toBeVisible();
+
+    const secondPage = await context.newPage();
+    await secondPage.goto('/account/ordini');
+    await expect(secondPage.getByRole('heading', { name: 'Nessun ordine' })).toBeVisible();
+
+    let refreshCalls = 0;
+    context.on('request', (apiRequest) => {
+      if (apiRequest.url().endsWith('/api/accounts/token/refresh/')) refreshCalls += 1;
+    });
+    await page.evaluate(() => localStorage.setItem('gb_access_token', 'expired-access-token'));
+    await Promise.all([page.reload(), secondPage.reload()]);
+    await expect(page.getByRole('heading', { name: 'Nessun ordine' })).toBeVisible();
+    await expect(secondPage.getByRole('heading', { name: 'Nessun ordine' })).toBeVisible();
+    expect(refreshCalls).toBe(1);
+
+    const rotated = await page.evaluate(() => ({
+      access: localStorage.getItem('gb_access_token'),
+      refresh: localStorage.getItem('gb_refresh_token'),
+    }));
+    expect(rotated.access).not.toBe('expired-access-token');
+    expect(rotated.refresh).toBeTruthy();
+    expect(rotated.refresh).not.toBe(user.tokens.refresh);
+    expect(await secondPage.evaluate(() => localStorage.getItem('gb_refresh_token'))).toBe(rotated.refresh);
+  });
+
+  test('revoked refresh token clears the session without retry loops', async ({ page, context, request }) => {
+    const user = await registerUser(request);
+    await context.addInitScript((tokens) => {
+      if (!localStorage.getItem('gb_access_token')) {
+        localStorage.setItem('gb_access_token', tokens.access);
+        localStorage.setItem('gb_refresh_token', tokens.refresh);
+      }
+    }, user.tokens);
+    await page.goto('/account/ordini');
+    await expect(page.getByRole('heading', { name: 'Nessun ordine' })).toBeVisible();
+
+    const logoutResponse = await request.post(`${API}/api/accounts/logout/`, {
+      data: { refresh: user.tokens.refresh },
+      headers: { Authorization: `Bearer ${user.tokens.access}` },
+    });
+    expect(logoutResponse.status()).toBe(204);
+
+    let refreshCalls = 0;
+    context.on('request', (apiRequest) => {
+      if (apiRequest.url().endsWith('/api/accounts/token/refresh/')) refreshCalls += 1;
+    });
+    await page.evaluate(() => localStorage.setItem('gb_access_token', 'expired-access-token'));
+    await page.reload();
+    await expect(page).toHaveURL(/\/login/);
+    await expect.poll(() => refreshCalls).toBe(1);
+    expect(await page.evaluate(() => localStorage.getItem('gb_access_token'))).toBeNull();
+    expect(await page.evaluate(() => localStorage.getItem('gb_refresh_token'))).toBeNull();
+    await page.waitForTimeout(500);
+    expect(refreshCalls).toBe(1);
+  });
+
   test('login with a wrong password shows the right message', async ({ page, request }) => {
     const user = await registerUser(request);
     await page.goto('/login');

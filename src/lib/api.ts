@@ -6,6 +6,25 @@ import type {
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+export const ACCESS_TOKEN_KEY = 'gb_access_token';
+export const REFRESH_TOKEN_KEY = 'gb_refresh_token';
+export const AUTH_SESSION_CLEARED_EVENT = 'gb:auth-session-cleared';
+
+const REFRESH_ENDPOINT = '/api/accounts/token/refresh/';
+const REFRESH_LOCK_NAME = 'gb-auth-token-refresh';
+const REFRESH_LOCK_KEY = 'gb_auth_refresh_lock';
+const REFRESH_LOCK_LEASE_MS = 30_000;
+const REFRESH_LOCK_WAIT_MS = 35_000;
+const REFRESH_LOCK_SETTLE_MS = 100;
+const REFRESH_EXCLUDED_ENDPOINTS = new Set([
+  '/api/accounts/login/',
+  '/api/accounts/register/',
+  REFRESH_ENDPOINT,
+]);
+
+type ApiRequestOptions = Omit<RequestInit, 'body'> & {
+  body?: RequestInit['body'] | (() => RequestInit['body']);
+};
 
 /* ---------------------------------------------------------------------------
    Guest cart token
@@ -43,6 +62,22 @@ let accessToken: string | null = null;
 export function setAccessToken(token: string | null) { accessToken = token; }
 export function getAccessToken(): string | null { return accessToken; }
 
+export function setAuthTokens(tokens: AuthTokens): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh);
+    localStorage.setItem(ACCESS_TOKEN_KEY, tokens.access);
+  }
+  setAccessToken(tokens.access);
+}
+
+export function clearAuthTokens(): void {
+  setAccessToken(null);
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  window.dispatchEvent(new Event(AUTH_SESSION_CLEARED_EVENT));
+}
+
 class ApiError extends Error {
   status: number;
   data: unknown;
@@ -53,6 +88,173 @@ class ApiError extends Error {
   }
 }
 export { ApiError };
+
+interface RefreshLock {
+  owner: string;
+  expiresAt: number;
+}
+
+let refreshInFlight: Promise<string | null> | null = null;
+
+function readRefreshLock(): RefreshLock | null {
+  const raw = localStorage.getItem(REFRESH_LOCK_KEY);
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      parsed
+      && typeof parsed === 'object'
+      && 'owner' in parsed
+      && typeof parsed.owner === 'string'
+      && 'expiresAt' in parsed
+      && typeof parsed.expiresAt === 'number'
+    ) {
+      return { owner: parsed.owner, expiresAt: parsed.expiresAt };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function waitForStorageChange(key: string, timeoutMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      window.removeEventListener('storage', onStorage);
+      resolve();
+    }, timeoutMs);
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === key || event.key === null) {
+        clearTimeout(timer);
+        window.removeEventListener('storage', onStorage);
+        resolve();
+      }
+    };
+    window.addEventListener('storage', onStorage);
+  });
+}
+
+async function withStorageRefreshLock<T>(callback: () => Promise<T>): Promise<T> {
+  const owner = crypto.randomUUID();
+  const deadline = Date.now() + REFRESH_LOCK_WAIT_MS;
+
+  while (Date.now() < deadline) {
+    const current = readRefreshLock();
+    if (!current || current.expiresAt <= Date.now()) {
+      localStorage.setItem(
+        REFRESH_LOCK_KEY,
+        JSON.stringify({ owner, expiresAt: Date.now() + REFRESH_LOCK_LEASE_MS }),
+      );
+      await waitForStorageChange(
+        REFRESH_LOCK_KEY,
+        REFRESH_LOCK_SETTLE_MS + Math.floor(Math.random() * REFRESH_LOCK_SETTLE_MS),
+      );
+      if (readRefreshLock()?.owner === owner) {
+        try {
+          return await callback();
+        } finally {
+          if (readRefreshLock()?.owner === owner) {
+            localStorage.removeItem(REFRESH_LOCK_KEY);
+          }
+        }
+      }
+    }
+    await waitForStorageChange(REFRESH_LOCK_KEY, 250);
+  }
+
+  throw new Error('Timed out waiting for the cross-tab token refresh lock.');
+}
+
+function withRefreshLock<T>(callback: () => Promise<T>): Promise<T> {
+  if (typeof navigator !== 'undefined' && navigator.locks) {
+    return navigator.locks.request<Promise<T>>(
+      REFRESH_LOCK_NAME,
+      { mode: 'exclusive' },
+      callback,
+    ).then((result) => result);
+  }
+  if (typeof window === 'undefined') {
+    throw new Error('Token refresh requires a browser lock.');
+  }
+  return withStorageRefreshLock(callback);
+}
+
+function readRotatedTokens(previousRefresh: string): AuthTokens | null {
+  const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
+  const access = localStorage.getItem(ACCESS_TOKEN_KEY);
+  return refresh && refresh !== previousRefresh && access ? { refresh, access } : null;
+}
+
+async function waitForRotatedTokens(previousRefresh: string): Promise<AuthTokens | null> {
+  const rotated = readRotatedTokens(previousRefresh);
+  if (rotated) return rotated;
+  await waitForStorageChange(REFRESH_TOKEN_KEY, 300);
+  return readRotatedTokens(previousRefresh);
+}
+
+function isAuthTokens(value: unknown): value is AuthTokens {
+  if (!value || typeof value !== 'object') return false;
+  return (
+    'access' in value
+    && typeof value.access === 'string'
+    && value.access.length > 0
+    && 'refresh' in value
+    && typeof value.refresh === 'string'
+    && value.refresh.length > 0
+  );
+}
+
+function refreshAccessToken(failedAccessToken: string): Promise<string | null> {
+  if (accessToken && accessToken !== failedAccessToken) {
+    return Promise.resolve(accessToken);
+  }
+  if (!refreshInFlight) {
+    refreshInFlight = withRefreshLock(async () => {
+      const currentAccess = localStorage.getItem(ACCESS_TOKEN_KEY);
+      if (currentAccess && currentAccess !== failedAccessToken) {
+        setAccessToken(currentAccess);
+        return currentAccess;
+      }
+
+      const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
+      if (!refresh) {
+        clearAuthTokens();
+        return null;
+      }
+
+      const response = await fetch(API_BASE + REFRESH_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh }),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          const rotated = await waitForRotatedTokens(refresh);
+          if (rotated) {
+            setAuthTokens(rotated);
+            return rotated.access;
+          }
+          clearAuthTokens();
+        }
+        return null;
+      }
+
+      const tokens: unknown = await response.json();
+      if (!isAuthTokens(tokens)) {
+        clearAuthTokens();
+        return null;
+      }
+
+      setAuthTokens(tokens);
+      return tokens.access;
+    }).finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
 
 /**
  * Turn any thrown error into one human readable string.
@@ -75,20 +277,41 @@ export function apiErrorMessage(err: unknown, fallback = 'Si è verificato un er
   return firstKey === 'detail' ? text : `${firstKey}: ${text}`;
 }
 
-async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function apiFetch<T>(endpoint: string, options: ApiRequestOptions = {}): Promise<T> {
   const url = API_BASE + endpoint;
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string>),
+  const { body, ...fetchOptions } = options;
+  const send = (token: string | null) => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+    };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (usesCartToken(endpoint)) {
+      const cartToken = getCartToken();
+      if (cartToken) headers['X-Cart-Token'] = cartToken;
+    }
+    return fetch(url, {
+      ...fetchOptions,
+      body: typeof body === 'function' ? body() : body,
+      headers,
+      credentials: 'include',
+    });
   };
-  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
-  if (usesCartToken(endpoint)) {
-    const cartToken = getCartToken();
-    if (cartToken) headers['X-Cart-Token'] = cartToken;
-  }
   // credentials: 'include' is kept only for the legacy cookie fallback and the admin
   // session; guest carts no longer depend on it.
-  const res = await fetch(url, { ...options, headers, credentials: 'include' });
+  const requestAccessToken = accessToken;
+  let res = await send(requestAccessToken);
+  if (
+    res.status === 401
+    && requestAccessToken
+    && !REFRESH_EXCLUDED_ENDPOINTS.has(endpoint.split('?')[0])
+  ) {
+    const refreshedAccessToken = await refreshAccessToken(requestAccessToken);
+    if (refreshedAccessToken) {
+      res = await send(refreshedAccessToken);
+      if (res.status === 401) clearAuthTokens();
+    }
+  }
   if (!res.ok) {
     const data = await res.json().catch(() => null);
     throw new ApiError(res.status, data);
@@ -259,8 +482,11 @@ export const auth = {
       method: 'POST', body: JSON.stringify(data),
     }),
   // Needs the Bearer token, otherwise the backend answers 401 and never revokes the refresh token.
-  logout: (refresh: string) =>
-    apiFetch<void>('/api/accounts/logout/', { method: 'POST', body: JSON.stringify({ refresh }) }),
+  logout: () =>
+    apiFetch<void>('/api/accounts/logout/', {
+      method: 'POST',
+      body: () => JSON.stringify({ refresh: localStorage.getItem(REFRESH_TOKEN_KEY) }),
+    }),
   me: () => apiFetch<User>('/api/accounts/me/'),
   addresses: async (): Promise<Address[]> =>
     unwrap(await apiFetch<Address[] | PaginatedResponse<Address>>('/api/accounts/addresses/')),
