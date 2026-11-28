@@ -134,6 +134,14 @@ export default function OrderDetailPage() {
                 <span>Subtotale</span>
                 <span>€{subtotal.toFixed(2)}</span>
               </div>
+              {order.has_discount && order.discount_amount && (
+                <div className={styles.summaryRow}>
+                  <span>
+                    Sconto benvenuto{order.discount_product_name ? ` · ${order.discount_product_name}` : ''}
+                  </span>
+                  <span>−€{parseFloat(order.discount_amount).toFixed(2)}</span>
+                </div>
+              )}
               <div className={styles.summaryRow}>
                 <span>Spedizione</span>
                 <span>{shippingCost === 0 ? 'Gratuita' : `€${shippingCost.toFixed(2)}`}</span>

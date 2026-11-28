@@ -47,13 +47,13 @@ export default function FirstPurchaseBanner() {
       <div className={styles.content}>
         <p className={styles.headline}>
           {isAuthenticated
-            ? `Hai diritto al ${discount.percent}% di sconto`
-            : `${discount.percent}% di sconto sul primo ordine`}
+            ? `Hai diritto al ${parseFloat(discount.percent)}% di sconto su un prodotto`
+            : `${parseFloat(discount.percent)}% di sconto su un prodotto del primo ordine`}
         </p>
         <p className={styles.sub}>
           {isAuthenticated
-            ? 'Lo sconto sarà applicato automaticamente al checkout.'
-            : 'Registrati ora per ottenere lo sconto al checkout.'}
+            ? 'Applicato automaticamente al prodotto di maggior valore nel carrello.'
+            : 'Registrati ora: lo sconto viene applicato in automatico, anche se acquisti più avanti.'}
         </p>
       </div>
       {!isAuthenticated && (

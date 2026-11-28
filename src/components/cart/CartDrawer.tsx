@@ -28,6 +28,9 @@ export default function CartDrawer() {
 
   const items = cart?.items || [];
   const total = cart?.total || '0.00';
+  const discount = cart?.discount ?? null;
+  const payable = cart?.total_after_discount ?? total;
+  const eur = (v: string) => parseFloat(v).toLocaleString('it-IT', { minimumFractionDigits: 2 });
 
   return (
     <>
@@ -135,10 +138,22 @@ export default function CartDrawer() {
             <div className={styles.footer}>
               <div className={styles.subtotal}>
                 <span className={styles.subtotalLabel}>Subtotale</span>
-                <span className={styles.subtotalValue}>
-                  EUR {parseFloat(total).toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                </span>
+                <span className={styles.subtotalValue}>EUR {eur(total)}</span>
               </div>
+              {discount && (
+                <>
+                  <div className={`${styles.subtotal} ${styles.discountRow}`} data-testid="cart-discount">
+                    <span className={styles.subtotalLabel}>
+                      Sconto benvenuto {parseFloat(discount.percent)}% · {discount.product_name}
+                    </span>
+                    <span className={styles.subtotalValue}>− EUR {eur(discount.amount)}</span>
+                  </div>
+                  <div className={styles.subtotal}>
+                    <span className={styles.subtotalLabel}>Totale</span>
+                    <span className={styles.subtotalValue}>EUR {eur(payable)}</span>
+                  </div>
+                </>
+              )}
               <p className={styles.sub}>Spedizione e tasse calcolate al checkout</p>
               <Link href="/checkout" className={`btn btn-primary ${styles.checkoutBtn}`} onClick={closeDrawer}>
                 Procedi al Checkout

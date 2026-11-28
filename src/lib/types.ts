@@ -124,11 +124,24 @@ export interface CartItem {
   reservation_expires_at: string;
 }
 
+/** Welcome discount: 10% off ONE unit of the most expensive item. Only for signed-in first-time buyers. */
+export interface CartDiscount {
+  percent: string;
+  amount: string;
+  product_name: string;
+  unit_price: string;
+}
+
 export interface Cart {
-  id: number;
+  id: number | null;
   items: CartItem[];
+  /** Sum of the lines, BEFORE any discount. */
   total: string;
   item_count: number;
+  /** null when the customer is a guest or has no discount left. */
+  discount?: CartDiscount | null;
+  /** What will actually be charged for the goods (total minus discount). */
+  total_after_discount?: string;
 }
 
 // ── Orders ──
@@ -165,6 +178,8 @@ export interface Order {
   item_count?: number;
   discount_percent?: string;
   discount_amount?: string;
+  /** The product (one unit) the welcome discount was applied to. */
+  discount_product_name?: string;
   has_discount?: boolean;
   subtotal?: string;
   shipping_cost?: string;

@@ -326,3 +326,9 @@
   .drawer,
   .backdrop { transition: none; }
 }
+/* Welcome discount line (applied automatically to one product) */
+.discountRow .subtotalLabel,
+.discountRow .subtotalValue {
+  color: var(--bronze, #8a6d3b);
+  font-weight: 600;
+}

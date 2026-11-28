@@ -239,3 +239,13 @@
   .input,
   .submitBtn { transition: none; }
 }
+.summaryDiscount {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bronze, #8a6d3b);
+}

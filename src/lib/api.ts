@@ -7,6 +7,38 @@ import type {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+/* ---------------------------------------------------------------------------
+   Guest cart token
+   The guest cart is identified by a random token kept in localStorage and sent
+   as the X-Cart-Token header — NOT by a cookie. A cookie set by the API is a
+   third-party cookie when the storefront and the API are on different domains,
+   which browsers drop or block (SameSite=Lax, Safari ITP, Firefox ETP).
+   ------------------------------------------------------------------------- */
+const CART_TOKEN_KEY = 'gb_cart_token';
+
+export function getCartToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    let token = localStorage.getItem(CART_TOKEN_KEY);
+    if (!token || !/^[0-9a-f]{32}$/.test(token)) {
+      token = crypto.randomUUID().replace(/-/g, '');   // 122 random bits
+      localStorage.setItem(CART_TOKEN_KEY, token);
+    }
+    return token;
+  } catch {
+    return null;   // storage blocked: the API falls back to its cookie session
+  }
+}
+
+export function clearCartToken(): void {
+  if (typeof window === 'undefined') return;
+  try { localStorage.removeItem(CART_TOKEN_KEY); } catch { /* ignore */ }
+}
+
+/** Endpoints that act on the cart of the current visitor. */
+const usesCartToken = (endpoint: string) =>
+  endpoint.startsWith('/api/cart/') || endpoint.startsWith('/api/checkout/');
+
 let accessToken: string | null = null;
 export function setAccessToken(token: string | null) { accessToken = token; }
 export function getAccessToken(): string | null { return accessToken; }
@@ -50,8 +82,12 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     ...(options.headers as Record<string, string>),
   };
   if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
-  // credentials: 'include' carries the Django session cookie, which is how the
-  // backend recognises a guest's cart.
+  if (usesCartToken(endpoint)) {
+    const cartToken = getCartToken();
+    if (cartToken) headers['X-Cart-Token'] = cartToken;
+  }
+  // credentials: 'include' is kept only for the legacy cookie fallback and the admin
+  // session; guest carts no longer depend on it.
   const res = await fetch(url, { ...options, headers, credentials: 'include' });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
@@ -108,10 +144,12 @@ interface RawCartItem {
   primary_image: string | null;
 }
 interface RawCart {
-  id: number;
+  id: number | null;
   items: RawCartItem[];
   total: string;
   item_count: number;
+  discount?: Cart['discount'];
+  total_after_discount?: string;
 }
 
 function normalizeCart(raw: RawCart): Cart {
@@ -119,6 +157,8 @@ function normalizeCart(raw: RawCart): Cart {
     id: raw.id,
     total: raw.total,
     item_count: raw.item_count,
+    discount: raw.discount ?? null,
+    total_after_discount: raw.total_after_discount ?? raw.total,
     items: (raw.items ?? []).map((item) => ({
       id: item.id,
       quantity: item.quantity,
@@ -160,11 +200,16 @@ export const cart = {
   clear: async (): Promise<Cart> =>
     normalizeCart(await apiFetch<RawCart>('/api/cart/', { method: 'DELETE' })),
   /** Authenticated only. The guest cart is found via the session cookie. */
-  merge: async (): Promise<Cart> =>
-    normalizeCart(await apiFetch<RawCart>('/api/cart/merge/', {
+  merge: async (): Promise<Cart> => {
+    const merged = normalizeCart(await apiFetch<RawCart>('/api/cart/merge/', {
       method: 'POST',
       body: JSON.stringify({}),
-    })),
+    }));
+    // The guest cart now lives in the account: forget the guest token so the next
+    // logged-out visit starts a fresh, empty guest cart.
+    clearCartToken();
+    return merged;
+  },
 };
 
 /* ---------------------------------------------------------------------------
@@ -301,6 +346,11 @@ export const newsletter = {
   subscribe: (email: string) =>
     apiFetch<{ message: string }>('/api/newsletter/subscribe/', {
       method: 'POST', body: JSON.stringify({ email }),
+    }),
+  /** `token` is the signed value from the unsubscribe link in a newsletter e-mail. */
+  unsubscribe: (token: string) =>
+    apiFetch<{ message: string }>('/api/newsletter/unsubscribe/', {
+      method: 'POST', body: JSON.stringify({ token }),
     }),
 };
 

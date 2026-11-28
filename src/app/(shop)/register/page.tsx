@@ -90,7 +90,8 @@ export default function RegisterPage() {
             <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/>
           </svg>
           <span>
-            <strong>10% di sconto</strong> sul tuo primo ordine quando ti registri.
+            <strong>10% di sconto</strong> su un prodotto del tuo primo ordine, applicato
+            automaticamente — anche se il primo acquisto arriva più avanti.
           </span>
         </div>
 

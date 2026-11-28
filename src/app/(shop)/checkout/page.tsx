@@ -31,6 +31,8 @@ export default function CheckoutPage() {
 
   const items = cart?.items || [];
   const total = cart?.total || '0.00';
+  const discount = cart?.discount ?? null;
+  const payable = cart?.total_after_discount ?? total;
 
   // Redirect to shop if the cart is empty — but only once it has LOADED
   // (cart is null while loading, which previously bounced every page refresh).
@@ -120,9 +122,15 @@ export default function CheckoutPage() {
             </div>
           ))}
           <div className={styles.divider} />
+          {discount && (
+            <div className={styles.summaryDiscount} data-testid="checkout-discount">
+              <span>Sconto benvenuto {parseFloat(discount.percent)}% · {discount.product_name}</span>
+              <span>− EUR {parseFloat(discount.amount).toLocaleString('it-IT', { minimumFractionDigits: 2 })}</span>
+            </div>
+          )}
           <div className={styles.summaryTotal}>
             <span>Totale</span>
-            <span>EUR {parseFloat(total).toLocaleString('it-IT', { minimumFractionDigits: 2 })}</span>
+            <span>EUR {parseFloat(payable).toLocaleString('it-IT', { minimumFractionDigits: 2 })}</span>
           </div>
           <div className={styles.summaryTrust}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>

@@ -32,7 +32,8 @@ function CheckoutForm({ formData }: CheckoutFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   const items = cart?.items || [];
-  const total = cart?.total || '0.00';
+  // What is really charged: the cart total AFTER the automatic welcome discount
+  const total = cart?.total_after_discount ?? cart?.total ?? '0.00';
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
