@@ -573,6 +573,11 @@ export const newsletter = {
     apiFetch<{ message: string }>('/api/newsletter/subscribe/', {
       method: 'POST', body: JSON.stringify({ email }),
     }),
+  /** `token` is the expiring signed value from the opt-in email. */
+  confirm: (token: string) =>
+    apiFetch<{ message: string }>('/api/newsletter/confirm/', {
+      method: 'POST', body: JSON.stringify({ token }),
+    }),
   /** `token` is the signed value from the unsubscribe link in a newsletter e-mail. */
   unsubscribe: (token: string) =>
     apiFetch<{ message: string }>('/api/newsletter/unsubscribe/', {

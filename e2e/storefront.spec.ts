@@ -170,6 +170,60 @@ test.describe('catalogue', () => {
   });
 });
 
+test.describe('checkout retry', () => {
+  test('reuses the attempt key after a network error and replaces it when the cart changes', async ({ page, request }) => {
+    const product = await pickInStockProduct(request);
+    await stubStripe(page);
+    await addToCartViaUi(page, product);
+    await page.goto('/checkout');
+    await fillCheckout(page, 'retry@example.com');
+
+    const idempotencyKeys: string[] = [];
+    await page.route('**/api/checkout/', async (route) => {
+      const body = route.request().postDataJSON() as { idempotency_key: string };
+      idempotencyKeys.push(body.idempotency_key);
+      if (idempotencyKeys.length < 3) {
+        await route.abort('failed');
+        return;
+      }
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          order: { order_number: 'GB-E2E-RETRY' },
+          client_secret: 'pi_e2e_retry_secret_test',
+        }),
+      });
+    });
+
+    const payButton = () => page.getByRole('button', { name: /^Paga €/ });
+    await payButton().click();
+    await expect(alertOf(page)).toContainText('Errore durante il checkout');
+    await payButton().click();
+    await expect(alertOf(page)).toContainText('Errore durante il checkout');
+    expect(idempotencyKeys[1]).toBe(idempotencyKeys[0]);
+
+    const cartToken = await page.evaluate(() => localStorage.getItem('gb_cart_token'));
+    expect(cartToken).toBeTruthy();
+    const productDetail = await (await request.get(`${API}/api/products/${product.slug}/`)).json();
+    const variant = productDetail.variants.find(
+      (item: { is_active: boolean }) => item.is_active,
+    );
+    const changedCart = await request.post(`${API}/api/cart/items/`, {
+      headers: { 'X-Cart-Token': cartToken! },
+      data: { variant_id: variant.id, quantity: 1 },
+    });
+    expect(changedCart.status()).toBe(201);
+
+    await page.reload();
+    await fillCheckout(page, 'retry@example.com');
+    await payButton().click();
+    await expect(page).toHaveURL(/\/checkout\/conferma\?order=GB-E2E-RETRY/);
+    expect(idempotencyKeys).toHaveLength(3);
+    expect(idempotencyKeys[2]).not.toBe(idempotencyKeys[0]);
+  });
+});
+
 test.describe('cart + guest checkout', () => {
   test.skip(!WEBHOOK_SECRET, 'set E2E_STRIPE_WEBHOOK_SECRET to run the purchase tests');
 
@@ -300,7 +354,108 @@ test.describe('welcome discount (10% on ONE product, automatic)', () => {
 });
 
 test.describe('newsletter unsubscribe link', () => {
+  test('confirmation page clearly distinguishes an invalid token from an expired token', async ({ page }) => {
+    await page.route('**/api/newsletter/confirm/', async (route) => {
+      const body = route.request().postDataJSON() as { token: string };
+      const expired = body.token === 'expired-token';
+      await route.fulfill({
+        status: expired ? 410 : 400,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error: {
+            code: expired ? 'newsletter_confirmation_expired' : 'validation_error',
+            detail: expired ? 'Confirmation link expired.' : 'Invalid token.',
+          },
+        }),
+      });
+    });
+
+    await page.goto('/newsletter/conferma?token=expired-token');
+    await page.getByRole('button', { name: 'Conferma iscrizione' }).click();
+    await expect(page.getByRole('heading', { name: 'Link scaduto' })).toBeVisible();
+
+    await page.goto('/newsletter/conferma?token=forged-token');
+    await page.getByRole('button', { name: 'Conferma iscrizione' }).click();
+    await expect(page.getByRole('heading', { name: 'Link non valido' })).toBeVisible();
+  });
+
+  test('footer subscribe -> confirmation click -> unsubscribe with a mocked email delivery', async ({ page }) => {
+    let subscribed = false;
+    let confirmed = false;
+    let unsubscribed = false;
+    const confirmationToken = 'mock-sendgrid-confirm-token';
+    const unsubscribeToken = 'mock-newsletter-unsubscribe-token';
+
+    await page.route('**/api/newsletter/subscribe/', async (route) => {
+      subscribed = true;
+      await route.fulfill({
+        status: 202,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message: 'If eligible, check your inbox to confirm.',
+        }),
+      });
+    });
+    await page.route('**/api/newsletter/confirm/', async (route) => {
+      const body = route.request().postDataJSON() as { token: string };
+      if (!subscribed || body.token !== confirmationToken) {
+        await route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: { code: 'validation_error', detail: 'Invalid token.' } }),
+        });
+        return;
+      }
+      confirmed = true;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Subscription confirmed.' }),
+      });
+    });
+    await page.route('**/api/newsletter/unsubscribe/', async (route) => {
+      const body = route.request().postDataJSON() as { token: string };
+      if (!confirmed || body.token !== unsubscribeToken) {
+        await route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: { code: 'validation_error', detail: 'Invalid token.' } }),
+        });
+        return;
+      }
+      unsubscribed = true;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Subscription cancelled.' }),
+      });
+    });
+
+    await page.goto('/');
+    const newsletterForm = page.locator('footer form');
+    await newsletterForm.getByPlaceholder('La tua email').fill('reader@example.com');
+    await newsletterForm.getByRole('button', { name: 'Iscriviti' }).click();
+    await expect(page.getByRole('status')).toContainText('controlla la tua casella di posta');
+
+    // This URL represents the confirmation link delivered by the mocked SendGrid inbox.
+    await page.goto(`/newsletter/conferma?token=${confirmationToken}`);
+    await page.getByRole('button', { name: 'Conferma iscrizione' }).click();
+    await expect(page.getByRole('heading', { name: 'Iscrizione confermata' })).toBeVisible();
+
+    await page.goto(`/newsletter/annulla-iscrizione?token=${unsubscribeToken}`);
+    await page.getByRole('button', { name: 'Conferma annullamento' }).click();
+    await expect(page.getByRole('heading', { name: 'Iscrizione annullata' })).toBeVisible();
+    expect(subscribed && confirmed && unsubscribed).toBe(true);
+  });
+
   test('a forged or missing token shows the invalid-link page and unsubscribes nobody', async ({ page }) => {
+    await page.route('**/api/newsletter/unsubscribe/', (route) =>
+      route.fulfill({
+        status: 400,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: { code: 'validation_error', detail: 'Invalid token.' } }),
+      }),
+    );
     await page.goto('/newsletter/annulla-iscrizione?token=not-a-real-token');
     await page.getByRole('button', { name: 'Conferma annullamento' }).click();
     await expect(page.getByRole('heading', { name: 'Link non valido' })).toBeVisible();

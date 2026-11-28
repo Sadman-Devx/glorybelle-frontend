@@ -7,10 +7,11 @@ import styles from './Footer.module.css';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatus('submitting');
     try {
       await newsletter.subscribe(email);
       setStatus('success');
@@ -50,7 +51,10 @@ export default function Footer() {
 
         <div className={styles.col}>
           <h4 className={styles.colTitle}>Newsletter</h4>
-          <p className={styles.nlDesc}>Scopri in anteprima le nuove collezioni.</p>
+          <p className={styles.nlDesc}>
+            Scopri in anteprima le nuove collezioni. Dopo l&apos;iscrizione, controlla la
+            tua email per confermare.
+          </p>
           <form onSubmit={handleSubscribe} className={styles.nlForm}>
             <input
               type="email"
@@ -60,12 +64,25 @@ export default function Footer() {
               className={styles.nlInput}
               required
             />
-            <button type="submit" className={`btn btn-gold ${styles.nlBtn}`}>
-              Iscriviti
+            <button
+              type="submit"
+              className={`btn btn-gold ${styles.nlBtn}`}
+              disabled={status === 'submitting'}
+            >
+              {status === 'submitting' ? 'Invio…' : 'Iscriviti'}
             </button>
           </form>
-          {status === 'success' && <p className={styles.nlSuccess}>Grazie per l&apos;iscrizione!</p>}
-          {status === 'error' && <p className={styles.nlError}>Si e verificato un errore. Riprova.</p>}
+          {status === 'success' && (
+            <p className={styles.nlSuccess} role="status">
+              Se l&apos;indirizzo può essere iscritto, controlla la tua casella di posta per
+              confermare.
+            </p>
+          )}
+          {status === 'error' && (
+            <p className={styles.nlError} role="alert">
+              Si è verificato un errore. Riprova.
+            </p>
+          )}
         </div>
       </div>
 
