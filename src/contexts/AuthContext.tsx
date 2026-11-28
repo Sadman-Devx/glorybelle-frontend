@@ -1,7 +1,15 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { auth as authApi, setAccessToken } from '@/lib/api';
+import {
+  ACCESS_TOKEN_KEY,
+  AUTH_SESSION_CLEARED_EVENT,
+  REFRESH_TOKEN_KEY,
+  auth as authApi,
+  clearAuthTokens,
+  setAccessToken,
+  setAuthTokens,
+} from '@/lib/api';
 import type { User } from '@/lib/types';
 
 interface AuthContextType {
@@ -15,15 +23,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const ACCESS_TOKEN_KEY = 'gb_access_token';
-const REFRESH_TOKEN_KEY = 'gb_refresh_token';
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Load access token from storage on mount and verify with /me/
   useEffect(() => {
+    const handleSessionCleared = () => setUser(null);
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === ACCESS_TOKEN_KEY) {
+        setAccessToken(event.newValue);
+        if (!event.newValue) setUser(null);
+      } else if (event.key === REFRESH_TOKEN_KEY && !event.newValue) {
+        setAccessToken(null);
+        setUser(null);
+      }
+    };
+    window.addEventListener(AUTH_SESSION_CLEARED_EVENT, handleSessionCleared);
+    window.addEventListener('storage', handleStorage);
+
     const init = async () => {
       const token = typeof window !== 'undefined'
         ? localStorage.getItem(ACCESS_TOKEN_KEY)
@@ -34,21 +52,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const me = await authApi.me();
           setUser(me);
         } catch {
-          setAccessToken(null);
-          localStorage.removeItem(ACCESS_TOKEN_KEY);
-          localStorage.removeItem(REFRESH_TOKEN_KEY);
+          clearAuthTokens();
         }
       }
       setLoading(false);
     };
-    init();
+    void init();
+    return () => {
+      window.removeEventListener(AUTH_SESSION_CLEARED_EVENT, handleSessionCleared);
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     const tokens = await authApi.login(email, password);
-    localStorage.setItem(ACCESS_TOKEN_KEY, tokens.access);
-    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh);
-    setAccessToken(tokens.access);
+    setAuthTokens(tokens);
     const me = await authApi.me();
     setUser(me);
   }, []);
@@ -60,19 +78,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [login]);
 
   const logout = useCallback(async () => {
-    const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
-    if (refresh) {
+    if (localStorage.getItem(REFRESH_TOKEN_KEY)) {
       try {
         // Goes through apiFetch so the Bearer token is attached — the endpoint
         // requires authentication, otherwise the refresh token is never revoked.
-        await authApi.logout(refresh);
+        await authApi.logout();
       } catch {
         // Logout API call failed — clear tokens locally anyway
       }
     }
-    setAccessToken(null);
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    clearAuthTokens();
     setUser(null);
   }, []);
 
